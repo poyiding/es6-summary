@@ -3,7 +3,7 @@ var path = require('path');
 var ROOT_PATH = path.resolve(__dirname);
 var BUILD_PATH = path.resolve(ROOT_PATH, 'dist');
 module.exports = {
-	entry: './es6Test/main.js',
+	entry: './es6-demo/main.js',
 	output: {
 		path: BUILD_PATH,
 		filename: 'bundle.js'
@@ -13,7 +13,7 @@ module.exports = {
     loaders: [
       {
         loader: 'babel-loader',
-        test: path.join(__dirname, 'es6Test'),
+        test: path.join(__dirname, 'es6-demo'),
         query: {
           presets: 'es2015',
         }
