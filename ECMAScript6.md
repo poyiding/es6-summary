@@ -1,8 +1,8 @@
 #### ES6浅入浅出
 
-##### 参考
+#### 参考
 
-* [ES6新特性](https://github.com/lukehoban/es6features)
+* [Mozilla开发者官网](https://developer.mozilla.org/zh-CN/)
 * 阮一峰老师[es6入门](http://es6.ruanyifeng.com/ "es入门")
 
 #### 环境
@@ -52,7 +52,7 @@ ES6的let类似于var,只是var声明有全局作用域和局部作用域，而l
 * 和let一样，只在声明所在的块级作用域内有效，同样存在"暂时性死区"，不允许在相同作用域内声明同一个变量
 
 ### Destructuring:解构赋值
-数组解构赋值
+>数组解构赋值
 
 	1.基本用法(Basic variable assignment)
 	let [a,b,c] = [1,2,3];
@@ -72,15 +72,59 @@ ES6的let类似于var,只是var声明有全局作用域和局部作用域，而l
 
 	let [a, , b] = f();
 	console.log(a+','+b); // 1,3
+	5.将剩余数组赋值给一个变量
+	const [a, ...b] = [1, 2, 3];
+	console.log(a); // 1
+	console.log(b); // [2, 3]
+>对象解构赋值
 
-对象解构赋值
+	1.默认值
+	let {a= 'aa',b,c} = {a: 1,b: 2,c: 3};
+	a // 1
+	b // 2
+	c // 3
+	2.给新的变量名赋值
+	let obj = { h: 'hello', w: 'world' };
+	let { h: hello, w: world } = obj;
+	hello // 'hello'
+	world // 'world'
+	3.无申明赋值
+	let a;
+	let b;
+	({a,b} = {a: 'aa',b: 'bb'})
+	a // 'aa'
+	b // 'bb' 
+>函数参数的解构赋值
 
-	1.基本用法
-	let o = {p: 42, q: true};
-	let {p, q} = o;
-	console.log(p+',',q);
-未完待续....
+	function drawES5Chart(options) {
+	  options = options|| {};
+	  var size = options.size || 'big';
+	  var radius = options.radius || 25;
+	  console.log(size,radius);
+	  // now finally do some chart drawing
+	}
 
-### Arrows:箭头函数
+	drawES5Chart({
+	  radius: 30
+	});		
+
+	ES6函数参数可通过解构赋值
+	function drawES5Chart({size = 'big',radius = 25}) {
+	  console.log(size,radius);
+	}
+	drawES5Chart({
+	  radius: 30		
+	});
+
+### String： 字符串
+> 模板字符串
+
+	const list = [{id:210,name:'sam'},{id:234,name:'coco'}];
+	let template = '';
+	list.map(function(item){
+		tetemplate += `<li class="test">${item.name}</li>`
+	});
+	$('#ul').append(template);
+
 
 未完待续。。。。
