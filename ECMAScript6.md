@@ -119,12 +119,13 @@ ES6的let类似于var,只是var声明有全局作用域和局部作用域，而l
 ### String： 字符串
 > 模板字符串
 
+```
 	const list = [{id:210,name:'sam'},{id:234,name:'coco'}];
 	let template = '';
 	list.map(function(item){
 		tetemplate += `<li class="test">${item.name}</li>`
 	});
 	$('#ul').append(template);
-
+```
 
 未完待续。。。。
