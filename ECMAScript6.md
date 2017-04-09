@@ -120,12 +120,30 @@ ES6的let类似于var,只是var声明有全局作用域和局部作用域，而l
 > 模板字符串
 
 ```
-	const list = [{id:210,name:'sam'},{id:234,name:'coco'}];
-	let template = '';
-	list.map(function(item){
-		tetemplate += `<li class="test">${item.name}</li>`
-	});
-	$('#ul').append(template);
+const list = [{id:210,name:'sam'},{id:234,name:'coco'}];
+let template = '';
+list.map(function(item){
+	tetemplate += `<li class="test">${item.name}</li>`
+});
+$('#ul').append(template);
+```
+> includes(), startsWith(), endsWith()
+
+* includes(searchString [, position])：返回布尔值，表示是否找到了参数字符串。position:从当前字符串的那个索引位置开始搜寻子字符串；默认值为0。
+* startsWith(searchString [, position])：返回布尔值，表示参数字符串是否在源字符串的头部。position:在 str 中搜索 searchString 的开始位置，默认0
+* endsWith(searchString [, position])：返回布尔值，表示参数字符串是否在源字符串的尾部。position:搜索的字符串searchString 的结束位置,，默认str.length 
+
+```
+var s = 'Hello world!';
+
+s.startsWith('Hello') // true
+s.endsWith('!') // true
+s.includes('o') // true
+
+s.startsWith('world', 6) // true
+s.endsWith('Hello', 5) // true
+s.includes('Hello', 6) // false
+
 ```
 
 未完待续。。。。
