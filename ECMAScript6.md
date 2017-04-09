@@ -131,7 +131,7 @@ $('#ul').append(template);
 
 * includes(searchString [, position])：返回布尔值，表示是否找到了参数字符串。position:从当前字符串的那个索引位置开始搜寻子字符串；默认值为0。
 * startsWith(searchString [, position])：返回布尔值，表示参数字符串是否在源字符串的头部。position:在 str 中搜索 searchString 的开始位置，默认0
-* endsWith(searchString [, position])：返回布尔值，表示参数字符串是否在源字符串的尾部。position:搜索的字符串searchString 的结束位置,，默认str.length 
+* endsWith(searchString [, position])：返回布尔值，表示参数字符串是否在源字符串的尾部。position:搜索的字符串(searchString)的结束位置,，默认str.length 
 
 ```
 var s = 'Hello world!';
@@ -146,4 +146,4 @@ s.includes('Hello', 6) // false
 
 ```
 
-未完待续。。
+未完待续。。。
