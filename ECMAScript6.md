@@ -1,14 +1,15 @@
 #### ES6浅入浅出
+虽然es6的标准在2015年已经出来，但一直没能总结一下，网上各种教程很多，这里只是个人的总结，也算是对所学的回顾吧。
 
-#### 参考
-
+#### 各种参考
+* [learn ES2015](https://babeljs.io/learn-es2015/)
+* [es6features](https://github.com/lukehoban/es6features#readme)
 * [Mozilla开发者官网](https://developer.mozilla.org/zh-CN/)
 * 阮一峰老师[es6入门](http://es6.ruanyifeng.com/ "es入门")
 
 #### 环境
-ES6目前浏览器支持不理想，需要bebal转换成标准的ES5才能被各浏览器支持，因此搭建webpack-es6环境,在test.js写es6代码即可测试.
+ES6目前浏览器支持不理想，需要bebal转换成标准的ES5才能被各浏览器支持，因此简单搭建了[webpack-es6](https://github.com/sam-dingkang/es6/tree/master/webpack-es6)环境
 
-不咯嗦，直入主题.....
 
 ### let和const
 ES6的let类似于var,只是var声明有全局作用域和局部作用域，而let声明只在块级作用域内有效
@@ -101,7 +102,6 @@ ES6的let类似于var,只是var声明有全局作用域和局部作用域，而l
 	  var size = options.size || 'big';
 	  var radius = options.radius || 25;
 	  console.log(size,radius);
-	  // now finally do some chart drawing
 	}
 
 	drawES5Chart({
@@ -116,34 +116,43 @@ ES6的let类似于var,只是var声明有全局作用域和局部作用域，而l
 	  radius: 30		
 	});
 
-### String： 字符串
-> 模板字符串
+### Default + Rest + Spread
+简单理解为三种形式的参数：Default parameters,Rest parameters, Spread Operator
+
+
+	function f(x, y=12) {
+	  // y若果不传或传一个undefined，y会默认赋值12
+	  return x + y;
+	}
+	f(3) // 15
+
+	function f1(x, ...y) {
+	  // y is an Array
+	  return x * y.length;
+	}
+	f1(3,4,5,6) // 9
+
+	function f2(x, y, z) {
+	  return x + y + z;
+	}
+	f2(...[1,2,3]) // 6
+	// 数组的每个元素对应为argument，而这之前，如果要将数组作为参数，需要用f2.apply(this,[1,2,3])
+
+
+### Template Strings:模板字符串
+
+模板字符串提供构建字符串的语法糖,使用反引号 (``) 来代替普通字符串中的用双引号和单引号.模板字符串可以包含特定语法(${expression})的占位符。
 
 ```
+const name = "sam"; const knowledgeId=201602125401;
+`Hello ${name}, how are you tody?`
+<a href=`sddhttps://cshall.alipay.com/enterprise/knowledgeDetail.htm?knowledgeId=${knowledgeId}`>跳转链接</a>
+
 const list = [{id:210,name:'sam'},{id:234,name:'coco'}];
 let template = '';
 list.map(function(item){
 	tetemplate += `<li class="test">${item.name}</li>`
 });
-$('#ul').append(template);
-```
-> includes(), startsWith(), endsWith()
-
-* includes(searchString [, position])：返回布尔值，表示是否找到了参数字符串。position:从当前字符串的那个索引位置开始搜寻子字符串；默认值为0。
-* startsWith(searchString [, position])：返回布尔值，表示参数字符串是否在源字符串的头部。position:在 str 中搜索 searchString 的开始位置，默认0
-* endsWith(searchString [, position])：返回布尔值，表示参数字符串是否在源字符串的尾部。position:搜索的字符串(searchString)的结束位置,，默认str.length 
+$('#ul').html(template);
 
 ```
-var s = 'Hello world!';
-
-s.startsWith('Hello') // true
-s.endsWith('!') // true
-s.includes('o') // true
-
-s.startsWith('world', 6) // true
-s.endsWith('Hello', 5) // true
-s.includes('Hello', 6) // false
-
-```
-
-未完待续。。。
