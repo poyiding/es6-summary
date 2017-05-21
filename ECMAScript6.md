@@ -8,7 +8,7 @@
 * 阮一峰老师[es6入门](http://es6.ruanyifeng.com/ "es入门")
 
 #### 环境
-ES6目前浏览器支持不理想，需要bebal转换成标准的ES5才能被各浏览器支持，因此简单搭建了[webpack-es6](https://github.com/sam-dingkang/es6/tree/master/webpack-es6)环境
+ES6目前浏览器支持不理想，需要bebal转换成标准的ES5才能被各浏览器支持，因此简单搭建了[es6运行环境](https://github.com/sam-dingkang/es6/tree/master/webpack-es6)
 
 
 ### let和const
@@ -48,7 +48,7 @@ ES6的let类似于var,只是var声明有全局作用域和局部作用域，而l
 * 存在暂时性死区：在区块中使用let命令声明变量之前，该变量都是不可用的。因此，凡是在声明之前就使用这些变量，就会报错。
 * let不允许在相同作用域内，重复声明同一个变量
 
-##### const
+#### const
 * const声明一个只读的常量。一旦声明，常量的值就不能改变。因此，一旦声明const，就必须立即初始化，	不能留到以后赋值。
 * 和let一样，只在声明所在的块级作用域内有效，同样存在"暂时性死区"，不允许在相同作用域内声明同一个变量
 
@@ -154,5 +154,86 @@ list.map(function(item){
 	tetemplate += `<li class="test">${item.name}</li>`
 });
 $('#ul').html(template);
+
+```
+
+### arrows and lexical this: 箭头函数和this的词法
+箭头函数使用=>语法简写，定义了自己的 this 值。箭头函数的引入有两个方面的作用：一是更简短的函数书写，二是对 this的词法解析。
+```
+singleParam => { statements; }
+// 正常函数写法
+[1,2,3].map(function (x) {
+  return x * x;
+});
+
+// 箭头函数写法
+[1,2,3].map(x => x * x);
+
+```
+ >不绑定 this
+ 
+```
+var adder = {
+  base : 1,
+    
+  add : function(a) {
+    var f = v => v + this.base;
+    return f(a);
+  },
+
+  addThruCall: function(a) {
+    var f = v => v + this.base;
+    var b = {
+      base : 2
+    };       
+    return f.call(b, a);
+  }
+};
+
+console.log(adder.add(1));         // 输出 2
+console.log(adder.addThruCall(1)); // 仍然输出 2（而不是3）
+
+```
+### classes: 类
+es6中class是基于原型的面向对象的简单写法(语法糖)，class支持基于原型的继承，super()调用，实例和静态方法，构造函数
+
+```
+class Rectangle {
+  constructor(height, width) {
+    this.height = height;
+    this.width = width;
+  } 
+  get area() {
+    return this.calcArea()
+  }
+  calcArea() {
+    return this.height * this.width;
+  }
+}
+const square = new Rectangle(10, 10);
+console.log(square.area);
+
+通过extends继承和使用super调用父对象的函数
+class A {
+  constructor() {
+    this.x = 1;
+  }
+  print() {
+    console.log(this.x);
+  }
+}
+
+class B extends A {
+  constructor() {
+    super();
+    this.x = 2;
+  }
+  m() {
+    super.print();
+  }
+}
+
+let b = new B();
+b.m() // 2
 
 ```
