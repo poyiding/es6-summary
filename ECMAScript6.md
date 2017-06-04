@@ -284,7 +284,7 @@ getURL(URL).then(function onFulfilled(value){
 
 ### Math + Number + String + Array + Object APIs
 
-[Number API](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)
+[Number API](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)<br/>
 [Math API](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Math)
 
 ```
@@ -331,5 +331,34 @@ var o3 = { c: 3 };
 var obj = Object.assign(o1, o2, o3);
 console.log(obj); // { a: 1, b: 2, c: 3 }
 console.log(o1);  // { a: 1, b: 2, c: 3 }
+
+```
+### Moudle
+
+```
+// lib/math.js
+export function sum(x, y) {
+  return x + y;
+}
+export var pi = 3.141593;
+模块的整体加载:用（*）指定一个对象，所有输出值都加载在这个对象上面。
+// app.js
+import * as math from "lib/math";
+console.log("2π = " + math.sum(math.pi, math.pi));
+按模块加载
+// app.js
+import {sum, pi} from "lib/math";
+console.log("2π = " + sum(pi, pi));
+
+export default 命令:为模块指定默认输出。这样其他模块加载该模块时，import命令可以为该匿名函数指定任意名字。
+// default.js 
+export default function () {
+  console.log('foo');
+}
+
+// app.js
+import customName from './default';
+
+当然export default命令用在非匿名函数前，也是可以的。
 
 ```
