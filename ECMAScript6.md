@@ -1,5 +1,5 @@
 #### ES6浅入浅出
-虽然es6的标准在2015年已经出来，但一直没能总结一下，网上各种教程很多，这里只是个人的总结，也算是对所学的回顾吧。
+虽然es6的标准在2015年已经出来，但一直没能总结一下，网上各种教程很多，这里个人总结一下常用的语法知识，具体还需参考各类文档。
 
 #### 各种参考
 * [learn ES2015](https://babeljs.io/learn-es2015/)
@@ -8,7 +8,7 @@
 * 阮一峰老师[es6入门](http://es6.ruanyifeng.com/ "es入门")
 
 #### 环境
-ES6目前浏览器支持不理想，需要bebal转换成标准的ES5才能被各浏览器支持，因此简单搭建了[es6运行环境](https://github.com/sam-dingkang/es6/tree/master/webpack-es6)
+ES6目前浏览器不全部支持，需要bebal转换成标准的ES5才能被各浏览器支持，因此简单搭建了[es6运行环境](https://github.com/sam-dingkang/es6/tree/master/webpack-es6)
 
 
 ### let和const
@@ -235,5 +235,101 @@ class B extends A {
 
 let b = new B();
 b.m() // 2
+
+```
+### promise
+* Promise是抽象异步处理对象,它提供统一的API,各种异步操作都可以用同样的方法进行处理。
+* 有了Promise对象，就可以将异步操作以同步操作的流程表达出来，避免了层层嵌套的回调函数。
+
+```
+var aPromise = new Promise(function(resolve, reject){
+    setTimeout(function(){
+        resolve("模拟异步"); 
+    }, 500);
+});
+
+aPromise.then(function(message){
+
+    console.log("test" + message);
+});
+
+**promise在异步请求的例子**
+
+function getURL(URL) {
+    return new Promise(function (resolve, reject) {
+        var req = new XMLHttpRequest();
+        req.open('GET', URL, true);
+        req.onload = function () {
+            if (req.status === 200) {
+                resolve(req.responseText);
+            } else {
+                reject(new Error(req.statusText));
+            }
+        };
+        req.onerror = function () {
+            reject(new Error(req.statusText));
+        };
+        req.send();
+    });
+}
+var URL = "http://httpbin.org/get";
+getURL(URL).then(function onFulfilled(value){
+    console.log(value);
+}).catch(function onRejected(error){
+    console.error(error);
+});
+
+```
+有关promise详细内容参考[promise迷你书](http://liubin.org/promises-book/#chapter1-what-is-promise)
+
+### Math + Number + String + Array + Object APIs
+
+```
+[Number API](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)
+[Math API](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Math)
+
+"abcde".includes("cd") // true
+"abc".repeat(3) // "abcabcabc"
+"abcdef".startsWith("ab") // true
+"abcdef".endsWith("ef") // true
+
+Array.from(document.getElementsByTagName('div')) // 返回NodeList的数组
+Array.of("a", 2, 3) // ["a",2,3]
+[1, 4, -5, 10].find((n) => n < 0) // -5
+[1,2,3].findIndex(x => x == 2) // 1
+["a", "b", "c"].entries() // iterator [0, "a"], [1,"b"], [2,"c"]
+["a", "b", "c"].keys() // iterator 0, 1, 2
+["a", "b", "c"].values() // iterator "a", "b", "c"
+数组的entries()、keys()、values()都返回的是一个遍历器，可以用for...of循环
+for (let index of ['a', 'b'].keys()) {
+  console.log(index);
+}
+// 0
+// 1
+
+for (let elem of ['a', 'b'].values()) {
+  console.log(elem);
+}
+// 'a'
+// 'b'
+
+for (let [index, elem] of ['a', 'b'].entries()) {
+  console.log(index, elem);
+}
+// 0 "a"
+// 1 "b"
+
+Object.assig()方法
+var obj = { a: 1 };
+var copy = Object.assign({}, obj);
+console.log(copy); // { a: 1 }
+需要注意的是Object.assign()是浅拷贝，容易使目标对象也改变
+var o1 = { a: 1 };
+var o2 = { b: 2 };
+var o3 = { c: 3 };
+
+var obj = Object.assign(o1, o2, o3);
+console.log(obj); // { a: 1, b: 2, c: 3 }
+console.log(o1);  // { a: 1, b: 2, c: 3 }
 
 ```
