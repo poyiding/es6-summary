@@ -284,10 +284,10 @@ getURL(URL).then(function onFulfilled(value){
 
 ### Math + Number + String + Array + Object APIs
 
-```
-[https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number "Number API")
-[https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Math](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Math "Math API")
+[Number API](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)
+[Math API](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Math)
 
+```
 "abcde".includes("cd") // true
 "abc".repeat(3) // "abcabcabc"
 "abcdef".startsWith("ab") // true
