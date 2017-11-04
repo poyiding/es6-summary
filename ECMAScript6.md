@@ -1,5 +1,5 @@
 ### 《深入理解的ES6》的总结
-虽然es6的标准在2015年已经出来，网上各种学习资料很多，在看完《深入理解的ES6》这本书后，决定总结一下个人。
+虽然es6的标准在2015年已经出来，网上各种学习资料很多，在看完《深入理解的ES6》这本书后，决定总结一下。
 #### 各种学习参考
 * 《深入理解ES6》
 * [learn ES2015](https://babeljs.io/learn-es2015/)
@@ -10,49 +10,53 @@
 #### 环境
 ES6目前浏览器不全部支持，需要bebal转换成标准的ES5才能被各浏览器支持，因此简单搭建了[es6运行环境](https://github.com/sam-dingkang/es6/tree/master/webpack-es6)，或者直接在babel官网的[在线实验室](https://babeljs.io/repl)进行测试代码。
 
-### 块级作用域的绑定
+### 目录
+* <a href='#scrop'>块级作用域的绑定</a>
+* <a href='#string'>字符串和正则表达式扩展</a>
+* <a href='#function'>函数</a>
+### <a name="scrop">块级作用域的绑定</a>
 > let
 
 ES6的let类似于var,只是var声明有全局作用域和局部作用域，而let声明只在块级作用域内有效
 
-	var a = 1;
-	let b= 2;
-	if (a === 1) {
-	  var a = 11; // the scope is global
-	  let b = 22; // the scope is inside the if-block
-	
-	  console.log(a);  // 11
-	  console.log(b);  // 22
-	} 
-	console.log(a); // 11
-	console.log(b); // 2
+  var a = 1;
+  let b= 2;
+  if (a === 1) {
+    var a = 11; // the scope is global
+    let b = 22; // the scope is inside the if-block
+  
+    console.log(a);  // 11
+    console.log(b);  // 22
+  } 
+  console.log(a); // 11
+  console.log(b); // 2
 
-	因此在for循环的计数器，就很合适使用let命令
-	var a = [];
-	for (var i = 0; i < 10; i++) {
-	  a[i] = function () {
-	    console.log(i);
-	  };
-	}
-	a[6](); // 10
-	在for循环完，数组a有10个function,i在全局作用域下，调用数组任一个方法得到的都是最后执行完循环的i=10;所以输出10
-	var a = [];
-	for (let i = 0; i < 10; i++) {
-	  a[i] = function () {
-	    console.log(i);
-	  };
-	}
-	a[6](); // 6
-	循环中var声明的变量会提升，相当于在当前作用域申明var i，每次循环都是引用相同的变量i,就会覆盖；
-	而let仅在块级作用域有效，每次都会新创建变量i,并将其初始化当前值，所以函数能拿到当前i的副本，因此最后输出6。
+  因此在for循环的计数器，就很合适使用let命令
+  var a = [];
+  for (var i = 0; i < 10; i++) {
+    a[i] = function () {
+      console.log(i);
+    };
+  }
+  a[6](); // 10
+  在for循环完，数组a有10个function,i在全局作用域下，调用数组任一个方法得到的都是最后执行完循环的i=10;所以输出10
+  var a = [];
+  for (let i = 0; i < 10; i++) {
+    a[i] = function () {
+      console.log(i);
+    };
+  }
+  a[6](); // 6
+  循环中var声明的变量会提升，相当于在当前作用域申明var i;，每次循环都是引用相同的变量i,就会覆盖，而let仅在块级作用域有效，每次都会新创建变量i,并将其初始化当前值，所以函数能拿到当前i的副本，因此最后输出6。
 
 * var声明会有变量提前，如果在声明前使用就是undefined，而let则避免这种现象，一定在let声明后使用，否则报ReferenceError
 * 存在暂时性死区：在区块中使用let命令声明变量之前，该变量都是不可用的。因此，凡是在声明之前就使用这些变量，就会报错。
+
 ```
-if(true){
-  console.log(typeof a); // 报错：ReferenceError: a is not defined
-  let a = '111';     
-}	
+  if(true){
+      console.log(typeof a); // 报错：ReferenceError: a is not defined
+      let a = '111';     
+  }	
 ```
 * let不允许在相同作用域内，重复声明同一个变量
 
@@ -60,9 +64,7 @@ if(true){
 
 * const声明一个只读的常量。一旦声明，常量的值就不能改变。因此，一旦声明const，就必须立即初始化，	不能留到以后赋值。
 * 和let一样，只在声明所在的块级作用域内有效，同样存在"暂时性死区"，不允许在相同作用域内声明同一个变量
-
-### 字符串和正则表达式扩展
-
+### <a name="string">字符串和正则表达式扩展</a>
 #### 字符串扩展
 
 > codePointAt()
@@ -70,9 +72,9 @@ if(true){
 在es6之前，所以的字符串是基于16位字符编码(UTF-16)构建，某些情况字符串的编码单元不能被一个 UTF-16 编码单元单独表示的情况下，只能匹配 Unicode 代理对的第一个编码单元，之前用charCodeAt()不能正确识别字符，因此es6增加了codePointAt().
 
 ```
-let text = '𠮷';
-console.log(text.charCodeAt(0)) // 55362
-console.log(text.codePointAt(0)) // 134071
+  let text = '𠮷';
+  console.log(text.charCodeAt(0)) // 55362
+  console.log(text.codePointAt(0)) // 134071
 ```
 > String.fromCodePoint()
 
@@ -159,7 +161,7 @@ ES6 还为正则表达式添加了y修饰符，叫做“粘连”（sticky）修
 ```
 let text = 'hello1 hello2 hello3',
   globalReg = /hello\d\s?/g,
-	stickyReg = /hello\d\s?/y,
+  stickyReg = /hello\d\s?/y,
 globalResult = globalReg.exec(text),
 stickyResult = stickyResult = stickyReg.exec(text);
 
@@ -183,100 +185,212 @@ console.log(pattern.sticky) // true;
 ```
 
 > flags属性
-
 ES6 为正则表达式新增了flags属性，会返回正则表达式的修饰符
 ```
 /abc/ig.source //返回 abc
 /abc/ig.flags // 返回 gi
 ```
+### <a name="function">函数</a>
+
+#### 函数形参的默认值
+> ES6默认参数值
+
+<p>在ES6之前，我们如下方式给函数赋予默认值</p>
+
+```
+function request(url, timeout, callback) {
+  timeout = timeout || 2000;
+  callback = callback || function() {};
+  // do something
+}
+这样其实是有缺陷的，比如timeout传入0，根据逻辑或操作，最终timeout赋值为200，因此，我么通常会用typeof检查参数类型.
+function request(url, timeout, callback) {
+  timeout = (typeof timeout !== 'undefind') ? timeout : 2000;
+  callback = (typeof callback !== 'undefind') ? callback : function() {};
+  // do something
+}
+
+```	
+<p>ES6简化了为形参提供默认值的过程，如果参数没有传入一个值，则默认提供一个初始值，例如</p>
+
+```
+  functionf request(url, timeout = 200, callback = function(){}) {
+    // do something
+  }
+  这个函数中url是总是要传入值的，其他两个都有默认值。调用request()方法例子：
+  // 使用timeout和callback默认值
+  request('/foo');
+  // 使用callback默认值
+  request('/foo', 500)
+  // 不使用默认值
+  requ(est('/foo', 500, function(body){
+    // doSomething(body)
+  })
+  // 如果使用timeout默认值，不使用callback
+  request('/foo', null, function(body){
+    // doSomething(body)
+  })
+
+```
+#### 使用默认参数值对arguments对象的影响
+<p>我们直接举例子对比</p>
+
+```
+  function mixArgs(first, second) {
+    // "use strict"; 
+    console.log(first === arguments[0])
+    console.log(second === arguments[1])
+    first = 'c';
+    second = 'd';
+    console.log(first === arguments[0])
+    console.log(second === arguments[1])
+  }
+  mixArgs('a', 'b');
+  // 执行后会输出 4个 true
+  然而我们使用严格模式('use strict'),调用mixArgs('a', 'b')，会输出下面内容：
+  true
+  true
+  false
+  false
+
+  在ES6中，函数使用了默认参数值，那么无论是否定义了严格模式，arguments都将与ES5严格模式保持一致。看下面代码：
+  function mixArgs(first, second = 'b') {
+    console.log(arguments.length)
+    console.log(first === arguments[0])
+    console.log(second === arguments[1])
+    first = 'c';
+    second = 'd';
+    console.log(first === arguments[0])
+    console.log(second === arguments[1])
+  }
+  mixArgs('a');
+  执行后输出：
+  1
+  true
+  false
+  false
+  false
+
+```
+>默认参数暂时性死区
+<p>前面我们讲了let和const都有暂时性死区，其实默认参数也有，我们通过例子来说明</p>
+
+```
+  function getValue(value) {
+    return value+5;
+  }
+  function add(first, second = getValue(first)) {
+    return first + second;
+  }
+  console.log(add(1, 1)) // 2
+  console.log(add(1)) // 7
+  // 调用add(1, 1)时，实际相当于：
+  let first = 1;
+  let second = 1;
+  // 调用add(1)时，相当于：
+  let first = 1;
+  let second = getValue(1);
+
+  由于初始化second时，first已经初始化，所以它可以访问first值，反过来就错了：
+  function add(first = second, second ) {
+    return first + second;
+  }
+  console.log(add(1, 1)) // 2
+  console.log(add(undefined, 1)) // 报错
+  // 调用add(undefined, 1) 时,相当于;
+  let first = second;
+  let second = 1 ;
+  因为first初始化时，second尚未初始化，所以报错。
+```
+
 ### Destructuring:解构赋值
 
 >数组解构赋值
 
-	1.基本用法(Basic variable assignment)
-	let [a,b,c] = [1,2,3];
-	console.log(a+','+b+','+c); // 1,2,3
-	2.默认值(Default values)
-	let [x, y = 'b'] = ['a'];
-	console.log(x+','+y); // a,b
-	3.交换变量(Swapping variables)
-	let n = 1;
-	let m = 3;
-	[a, b] = [n, m];
-	console.log(a+','+m); // 1,3
-	4.从方法中返回数组（Parsing an array returned from a function），省略一些返回值(Ignoring some returned values)
-	function f() {
-	  return [1, 2, 3];
-	}
+  1.基本用法(Basic variable assignment)
+  let [a,b,c] = [1,2,3];
+  console.log(a+','+b+','+c); // 1,2,3
+  2.默认值(Default values)
+  let [x, y = 'b'] = ['a'];
+  console.log(x+','+y); // a,b
+  3.交换变量(Swapping variables)
+  let n = 1;
+  let m = 3;
+  [a, b] = [n, m];
+  console.log(a+','+m); // 1,3
+  4.从方法中返回数组（Parsing an array returned from a function），省略一些返回值(Ignoring some returned values)
+  function f() {
+    return [1, 2, 3];
+  }
 
-	let [a, , b] = f();
-	console.log(a+','+b); // 1,3
-	5.将剩余数组赋值给一个变量
-	const [a, ...b] = [1, 2, 3];
-	console.log(a); // 1
-	console.log(b); // [2, 3]
+  let [a, , b] = f();
+  console.log(a+','+b); // 1,3
+  5.将剩余数组赋值给一个变量
+  const [a, ...b] = [1, 2, 3];
+  console.log(a); // 1
+  console.log(b); // [2, 3]
 
 >对象解构赋值
 
-	1.默认值
-	let {a= 'aa',b,c} = {a: 1,b: 2,c: 3};
-	a // 1
-	b // 2
-	c // 3
-	2.给新的变量名赋值
-	let obj = { h: 'hello', w: 'world' };
-	let { h: hello, w: world } = obj;
-	hello // 'hello'
-	world // 'world'
-	3.无申明赋值
-	let a;
-	let b;
-	({a,b} = {a: 'aa',b: 'bb'})
-	a // 'aa'
-	b // 'bb' 
+  1.默认值
+  let {a= 'aa',b,c} = {a: 1,b: 2,c: 3};
+  a // 1
+  b // 2
+  c // 3
+  2.给新的变量名赋值
+  let obj = { h: 'hello', w: 'world' };
+  let { h: hello, w: world } = obj;
+  hello // 'hello'
+  world // 'world'
+  3.无申明赋值
+  let a;
+  let b;
+  ({a,b} = {a: 'aa',b: 'bb'})
+  a // 'aa'
+  b // 'bb' 
 
 >函数参数的解构赋值
 
-	function drawES5Chart(options) {
-	  options = options|| {};
-	  var size = options.size || 'big';
-	  var radius = options.radius || 25;
-	  console.log(size,radius);
-	}
+  function drawES5Chart(options) {
+    options = options|| {};
+    var size = options.size || 'big';
+    var radius = options.radius || 25;
+    console.log(size,radius);
+  }
 
-	drawES5Chart({
-	  radius: 30
-	});		
+  drawES5Chart({
+    radius: 30
+  });		
 
-	ES6函数参数可通过解构赋值
-	function drawES5Chart({size = 'big',radius = 25}) {
-	  console.log(size,radius);
-	}
-	drawES5Chart({
-	  radius: 30		
-	});
+  ES6函数参数可通过解构赋值
+  function drawES5Chart({size = 'big',radius = 25}) {
+    console.log(size,radius);
+  }
+  drawES5Chart({
+    radius: 30		
+  });
 
 ### Default + Rest + Spread
 简单理解为三种形式的参数：Default parameters,Rest parameters, Spread Operator
 
 
-	function f(x, y=12) {
-	  // y若果不传或传一个undefined，y会默认赋值12
-	  return x + y;
-	}
-	f(3) // 15
+  function f(x, y=12) {
+    // y若果不传或传一个undefined，y会默认赋值12
+    return x + y;
+  }
+  f(3) // 15
 
-	function f1(x, ...y) {
-	  // y is an Array
-	  return x * y.length;
-	}
-	f1(3,4,5,6) // 9
+  function f1(x, ...y) {
+    // y is an Array
+    return x * y.length;
+  }
+  f1(3,4,5,6) // 9
 
-	function f2(x, y, z) {
-	  return x + y + z;
-	}
-	f2(...[1,2,3]) // 6
-	// 数组的每个元素对应为argument，而这之前，如果要将数组作为参数，需要用f2.apply(this,[1,2,3])
+  function f2(x, y, z) {
+    return x + y + z;
+  }
+  f2(...[1,2,3]) // 6
+  // 数组的每个元素对应为argument，而这之前，如果要将数组作为参数，需要用f2.apply(this,[1,2,3])
 
 
 ### arrows and lexical this: 箭头函数和this的词法
