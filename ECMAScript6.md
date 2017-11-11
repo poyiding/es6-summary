@@ -1,12 +1,5 @@
-### 《深入理解的ES6》的总结
-虽然es6的标准在2015年已经出来，网上各种学习资料很多，在看完《深入理解的ES6》这本书后，决定总结一下。
-#### 各种学习参考
-* 《深入理解ES6》
-* [learn ES2015](https://babeljs.io/learn-es2015/)
-* [es6features](https://github.com/lukehoban/es6features#readme)
-* [Mozilla开发者官网](https://developer.mozilla.org/zh-CN/)
-* 阮一峰老师[es6入门](http://es6.ruanyifeng.com/ "es入门")
-
+### 精读《深入理解的ES6》
+虽然es6的标准在2015年已经出来，网上各种学习资料很多，之前学习完也没有总结，刚好在看《深入理解的ES6》这本书后，决定总结一下，同时也算自己的回顾。
 #### 环境
 ES6目前浏览器不全部支持，需要bebal转换成标准的ES5才能被各浏览器支持，因此简单搭建了[es6运行环境](https://github.com/sam-dingkang/es6/tree/master/webpack-es6)，或者直接在babel官网的[在线实验室](https://babeljs.io/repl)进行测试代码。
 
@@ -214,7 +207,7 @@ function request(url, timeout, callback) {
 <p>ES6简化了为形参提供默认值的过程，如果参数没有传入一个值，则默认提供一个初始值，例如</p>
 
 ```
-  functionf request(url, timeout = 200, callback = function(){}) {
+  function request(url, timeout = 200, callback = function(){}) {
     // do something
   }
   这个函数中url是总是要传入值的，其他两个都有默认值。调用request()方法例子：
@@ -302,11 +295,230 @@ function request(url, timeout, callback) {
   let second = 1 ;
   因为first初始化时，second尚未初始化，所以报错。
 ```
+#### 函数不定参数
+<p>在函数参数命名前加(...)表明这是一个不定参数，该参数为数组，包含自它之后传入的所有参数。</p>
+
+```
+function pick(object, ...keys) {
+  let result = {};
+  for(let i=0,len = keys.length; i< len; i++) {
+    result[keys[i]] = object[keys[i]];
+  }
+  return result;
+}
+pick({
+  title: 'understanding ES6',
+  auther: 'sam',
+  year: 2017
+},'auther', 'year');
+// {auther: "sam", year: 2017}
+```
+<p>不定参数有两个限制：一个是每个函数最多只能有一个不定参数，且只能放在所有参数的末尾，另一个是不定参数不能用于对象字面量setter中</p>
+
+```
+  // 语法错误，不定参数后面不能有其他命名参数
+  function pick(object, ...keys, last) {
+    // something
+  }
+
+  let object = {
+    // 语法错误，不能在setter中使用不定参数
+    set name(...value) {
+
+    }
+  };
+```
+#### 函数展开运算符
+
+```
+ES6之前，我们取数组数组中最大值通常是这样:
+Math.max.apply(Math,[23,56,76,88]);
+现在我们用ES6的展开运算符就无须再调用apply(),代码更容易阅读。
+let arr = [23,56,76,88];
+Math.max(...arr);
+等价于：Math.max(23,56,76,88);
+```
+#### 明确函数的多重用途
+* ES5中判断函数被调用的方法
+```
+ES5中判断一个函数是否通过new关键字调用(或者作为构造函数被调用)，通常是使用instanceof来判断。
+function Person(name) {
+  if(this instanceof Person) {
+    this.name = name;
+  }else {
+    throw new Error('必须通过new关键字调用Person');
+  }
+}
+但是这个方法也不完全可靠，比如：
+var onePerson = new Person('sam');
+var notPerson = Person.call(onePerson, 'snow'); // 有效
+这是因为通过call()将Person 中this设为了onePerson实例。
+
+```
+* 元属性(Metaproperty)new.target
+```
+  为了解决上面例子判断函数是否通过new关键字调用问题，ES6引入了new.target这个元属性。
+  function Person(name) {
+    if(typeof new.target !== 'undefined') {
+      this.name = name;
+    }else {
+      throw new Error('必须通过new关键字调用Person');
+    }
+  }
+  var onePerson = new Person('sam');
+  var notPerson = Person.call(onePerson, 'snow'); // 抛出错误
+```
+* 块级函数
+<p>在ES5之前版本或ES5严格模式中，代码块内部声明函数时，程序会抛出错误</p>
+
+```
+  'use strict';
+  if(true){
+    // ES5中抛出语法错误，ES6中不报错
+    function (){
+      // doSomething
+    }
+  }
+```
+
+#### 箭头函数
+
+箭头函数与传统javacript不同，箭头函数主要体现在以下几个方面
+
+*  没有this、super、arguments和new.target 绑定。
+*  不能通过new关键字调用
+*  没有原型   
+*  不可改变this的绑定
+*  不支持arguments对象
+*  不支持重复的命名参数
+
+> 箭头函数语法
+```
+let fn = value => value;
+// 相当于：
+let fn = function(value) {
+  return value
+}
+如果需要传两个或两个以上参数:
+let fn = (num1, num2) => num1 + num2;
+如果函数需要由表达式组成更传统的函数体，需要用花括号包裹函数体：
+let fn = (num1, num2) => {
+  return num1 + num2;
+}
+如果想在箭头函数外返回一个对象字面量：
+let fn = id => ({
+  id: id,
+  name: 'sam'
+});
+``` 
+> 箭头函数没有this绑定
+<p>箭头函数没有this绑定，必须通过查找作用域链来决定其值。如果箭头函数被非箭头函数包含，那么this绑定的是最近一层非箭头函数的this,否则this为undefined。可以通过下面的代码来看</p>
+
+```
+const adder = {
+  base : 1,
+    
+  add: function(a) {
+    const f = v => v + this.base;
+    return f(a);
+  },
+
+  addThruCall: function(a) {
+    const f = v => v + this.base;
+    const b = {
+      base : 2
+    };       
+    return f.call(b, a);
+  }
+};
+
+console.log(adder.add(1));         // 输出 2
+console.log(adder.addThruCall(1)); // 仍然输出 2（而不是3）
+```
+<p>箭头函数可以调用call()、apply()、bind()方法，但是与之前不同的是箭头函数的this不会受这些方法影响。</p>
+
+>箭头函数没有arguments绑定
+<p>箭头函数没有自己的arguments对象,且函数不论在哪个上下文中执行，箭头函数始终可以访问外围函数的arguments对象。</p>
+
+```
+function returnArg() {
+  return () => arguments[0];
+}
+const fn = returnArg(5);
+console.log(fn()); // 5
+```
+#### 尾调用优化
+> 尾调用：是指某个函数的最后一步是调用另一个函数。
+```
+function doSomething() {
+  return doSomethingElse(); //尾调用
+}
+```
+>ES6中尾调用优化
+
+ES6在严格模式下会缩减调用栈(调用帧)的大小(非严格模式无效)，尾调用不会创建新的栈，而是清除并重用当前栈，但是它要满足尾调用的条件。
+```
+'use strict'
+function doSomething() {
+  // 引擎优化
+  return doSomethingElse();
+}
+// 以下几种情况无法优化
+function doSomething() {
+  // 无法优化，因为没有返回
+  doSomethingElse();
+}
+
+function doSomething() {
+  // 无法优化，必须在返回值后添加其他操作
+  return 1 + doSomethingElse();
+}
+
+function doSomething() {
+  // 无法优化，调用不在尾部
+  const result = doSomethingElse();
+  return result;
+}
+
+function doSomething() {
+  // 无法优化，调用不在尾部
+  let num = 1,
+      func = () => num;
+  // 无法优化，该函数是个闭包   
+  return func();    
+}
+```
+>如何利用尾调用优化
+
+尾调用优化主要是应用在递归场景中，通过尾递归优化效果最显著，通过例子来看：
+
+```
+function factorial(n) {
+  if(n <= 1 ) {
+    return 1;
+  } else {
+    return n * factorial(n - 1);
+  }
+}
+// 上面代码是一个阶乘函数，计算n的阶乘，最多需要保存n个调用记录，复杂度 O(n),容易出现‘栈溢出’。ES6 中只要使用尾递归，就可以优化内存。
+
+function factorial(n, p = 1) {
+  if(n <= 1 ) {
+    return 1 * p;
+  } else {
+    let result = n * p;
+    // 尾调用优化后
+    return factorial(n - 1, result);
+  }
+}
+
+```
 
 ### Destructuring:解构赋值
 
 >数组解构赋值
 
+```
   1.基本用法(Basic variable assignment)
   let [a,b,c] = [1,2,3];
   console.log(a+','+b+','+c); // 1,2,3
@@ -329,9 +541,10 @@ function request(url, timeout, callback) {
   const [a, ...b] = [1, 2, 3];
   console.log(a); // 1
   console.log(b); // [2, 3]
+```
 
 >对象解构赋值
-
+```
   1.默认值
   let {a= 'aa',b,c} = {a: 1,b: 2,c: 3};
   a // 1
@@ -348,9 +561,9 @@ function request(url, timeout, callback) {
   ({a,b} = {a: 'aa',b: 'bb'})
   a // 'aa'
   b // 'bb' 
-
+```
 >函数参数的解构赋值
-
+```
   function drawES5Chart(options) {
     options = options|| {};
     var size = options.size || 'big';
@@ -369,10 +582,10 @@ function request(url, timeout, callback) {
   drawES5Chart({
     radius: 30		
   });
-
+```
 ### Default + Rest + Spread
 简单理解为三种形式的参数：Default parameters,Rest parameters, Spread Operator
-
+```
 
   function f(x, y=12) {
     // y若果不传或传一个undefined，y会默认赋值12
@@ -391,44 +604,6 @@ function request(url, timeout, callback) {
   }
   f2(...[1,2,3]) // 6
   // 数组的每个元素对应为argument，而这之前，如果要将数组作为参数，需要用f2.apply(this,[1,2,3])
-
-
-### arrows and lexical this: 箭头函数和this的词法
-箭头函数使用=>语法简写，定义了自己的 this 值。箭头函数的引入有两个方面的作用：一是更简短的函数书写，二是对 this的词法解析。
-```
-singleParam => { statements; }
-// 正常函数写法
-[1,2,3].map(function (x) {
-  return x * x;
-});
-
-// 箭头函数写法
-[1,2,3].map(x => x * x);
-
-```
- >不绑定 this
- 
-```
-var adder = {
-  base : 1,
-    
-  add : function(a) {
-    var f = v => v + this.base;
-    return f(a);
-  },
-
-  addThruCall: function(a) {
-    var f = v => v + this.base;
-    var b = {
-      base : 2
-    };       
-    return f.call(b, a);
-  }
-};
-
-console.log(adder.add(1));         // 输出 2
-console.log(adder.addThruCall(1)); // 仍然输出 2（而不是3）
-
 ```
 ### classes: 类
 es6中class是基于原型的面向对象的简单写法(语法糖)，class支持基于原型的继承，super()调用，实例和静态方法，构造函数
@@ -598,3 +773,9 @@ import customName from './default';
 当然export default命令用在非匿名函数前，也是可以的。
 
 ```
+
+#### 其他参考
+* [learn ES2015](https://babeljs.io/learn-es2015/)
+* [es6features](https://github.com/lukehoban/es6features#readme)
+* [Mozilla开发者官网](https://developer.mozilla.org/zh-CN/)
+* 阮一峰老师[es6入门](http://es6.ruanyifeng.com/ "es入门")
