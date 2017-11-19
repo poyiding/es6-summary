@@ -7,11 +7,12 @@ ES6目前浏览器不全部支持，需要bebal转换成标准的ES5才能被各
 * <a href='#scrop'>块级作用域的绑定</a>
 * <a href='#string'>字符串和正则表达式扩展</a>
 * <a href='#function'>函数</a>
+* <a href="#obj">扩展对象的功能属性</a>
 ### <a name="scrop">块级作用域的绑定</a>
 > let
 
 ES6的let类似于var,只是var声明有全局作用域和局部作用域，而let声明只在块级作用域内有效
-
+```
   var a = 1;
   let b= 2;
   if (a === 1) {
@@ -41,7 +42,7 @@ ES6的let类似于var,只是var声明有全局作用域和局部作用域，而l
   }
   a[6](); // 6
   循环中var声明的变量会提升，相当于在当前作用域申明var i;，每次循环都是引用相同的变量i,就会覆盖，而let仅在块级作用域有效，每次都会新创建变量i,并将其初始化当前值，所以函数能拿到当前i的副本，因此最后输出6。
-
+```
 * var声明会有变量提前，如果在声明前使用就是undefined，而let则避免这种现象，一定在let声明后使用，否则报ReferenceError
 * 存在暂时性死区：在区块中使用let命令声明变量之前，该变量都是不可用的。因此，凡是在声明之前就使用这些变量，就会报错。
 
@@ -435,7 +436,7 @@ const adder = {
 console.log(adder.add(1));         // 输出 2
 console.log(adder.addThruCall(1)); // 仍然输出 2（而不是3）
 ```
-<p>箭头函数可以调用call()、apply()、bind()方法，但是与之前不同的是箭头函数的this不会受这些方法影响。</p>
+<p>箭头函数可以调用call()、apply()、bind()方法，但是与之前不同的是箭头函数调用这些方法后,this的值不会改变。</p>
 
 >箭头函数没有arguments绑定
 <p>箭头函数没有自己的arguments对象,且函数不论在哪个上下文中执行，箭头函数始终可以访问外围函数的arguments对象。</p>
@@ -514,6 +515,142 @@ function factorial(n, p = 1) {
 
 ```
 
+### <a name="obj">扩展对象的功能属性</a>
+#### 对象字面量语法扩展
+> 属性初始值简写
+```
+function createPerson(name, age) {
+  return {
+    name: name,
+    age: age
+  };
+}
+// es6 改写如下
+function createPerson(name, age) {
+  return {
+    name,
+    age
+  }
+}
+```
+> 对象方法的简写语法
+```
+var person = {
+  name: 'sam',
+  sayName: function() {
+    console.log(this.name);
+  }
+};
+// es6 简写如下
+var person = {
+  name: 'sam',
+  sayName() {
+    console.log(this.name);
+  }
+};
+```
+> 可计算属性名
+```
+// es5想要计算得到属性名，需要用[]代替.记法
+var person = {},
+    lastName = 'last name';
+person['first name'] = 'tony';
+person[lastName] = 'allen';    
+
+// 在es6中
+var lastName = 'last name';
+var person = {
+  "first name": 'tony',
+  [last]: 'allen'
+};
+// 属性名是可计算的
+var name = "name";
+var person = {
+  ["first" + name]: 'tony',
+  ["last" + name]: 'allen'
+};
+```
+#### 新增方法
+> Object.is()方法
+```
+console.log(+0 === -0); // true
+consoel.log(Object.is(+0, -0)); // false
+
+console.log(NaN == NaN); // false
+console.log(NaN === NaN); // false
+console.log(Object.is(NaN, NaN)); // true;
+
+console.log(5 == "5"); // true;
+console.log(5 === "5"); // false;
+console.log(Object.is(5, "5")); // false;
+```
+> Object.assign()方法
+
+对象的组合(合并)是javascript中最常用的一种模式，在jQuery中提供jQuery.extend()这个API来实现。ES6中，Object.assign()方法可以接受任意数量的源对象，并按指定位置的顺序将属性复制到接收对象中。所以，如果多个源对象具有同名属性，则排位靠后的源对象会覆盖排位靠前的，看下面代码：
+
+```
+const obj = Object.assign({},
+  {
+    type: 'js',
+    name: 'file.js'
+  },
+  {
+    type: 'css'
+  }
+);
+console.log(obj) // {type: 'css', name: 'file.js'}
+
+// 需要注意的是Object.assign()是浅拷贝，容易使目标对象也改变
+var o1 = { a: 1 };
+var o2 = { b: 2 };
+var o3 = { c: 3 };
+
+var obj = Object.assign(o1, o2, o3);
+console.log(obj); // { a: 1, b: 2, c: 3 }
+console.log(o1);  // { a: 1, b: 2, c: 3 }
+```
+#### 重复的对象字面量属性
+
+在ES5中的严格模式中，对象同时存在多个同名属性时会抛出错误,而在ES6中，不管在严格模式还是非严格模式，重复的属性检查被移除，不会报错，它会选取最后一个取值：
+
+```
+"use strict;"
+var person = {
+  name: "sam",
+  name: "coco" // ES5严格模式下会有语法错误
+};
+// 在ES6中没有错误
+console.lo(person.name) // "coco"
+```
+#### 增强对象原型
+> 改变对象的原型
+
+正常情况下，无论是是通过构造函数还是 Object.create() 方法创建对象，其原型是在创建时被指定的。ES5中添加了 Object.getPrototypeOf() 方法来返回指定对象的原型，但是仍缺少对象在实例化后改变原型的标准方法。所以，在ES6中添加了 Object.setPrototypeOf() 方法，它可用来改变任意指定对象的原型，它接受两个参数：第一个是被改变原型的对象，第二个是指向的对象。
+
+```
+let person = {
+  greet() {
+    return "hello";
+  }
+};
+let dog = {
+  greet() {
+    return "woof";
+  }
+};
+
+// 以person对象为原型
+let friend = Object.create(person);
+console.log(friend.greet()); // "hello"
+console.log(Object.getPrototypeOf(friend) === person); // true
+
+// 将原型设置为dog
+Object.setprototypeOf(friend, dog);
+console.log(friend.greet()); // "woof"
+console.log(Object.getPrototypeOf(friend) === dog); // true
+
+```
+> 访问原型 Super() 关键字
 ### Destructuring:解构赋值
 
 >数组解构赋值
