@@ -8,6 +8,7 @@ ES6目前浏览器不全部支持，需要bebal转换成标准的ES5才能被各
 * <a href='#string'>字符串和正则表达式扩展</a>
 * <a href='#function'>函数</a>
 * <a href="#obj">扩展对象的功能属性</a>
+* <a href="Destructuring">解构--是数据访问更便捷</a>
 ### <a name="scrop">块级作用域的绑定</a>
 > let
 
@@ -629,29 +630,68 @@ console.lo(person.name) // "coco"
 
 ```
 let person = {
-  greet() {
+  greeting() {
     return "hello";
   }
 };
 let dog = {
-  greet() {
+  greeting() {
     return "woof";
   }
 };
 
 // 以person对象为原型
 let friend = Object.create(person);
-console.log(friend.greet()); // "hello"
+console.log(friend.greeting()); // "hello"
 console.log(Object.getPrototypeOf(friend) === person); // true
 
 // 将原型设置为dog
 Object.setprototypeOf(friend, dog);
-console.log(friend.greet()); // "woof"
+console.log(friend.greeting()); // "woof"
 console.log(Object.getPrototypeOf(friend) === dog); // true
 
 ```
 > 访问原型 Super() 关键字
-### Destructuring:解构赋值
+
+ES6引入了 Super 关键字，它可以更便捷的访问对象原型。比如你想重写对象的实例方法，又要调用与它同名的原型方法，ES5中可以这样实现：
+
+```
+let person = {
+  greeting() {
+    return 'hello';
+  }
+};
+let friend = {
+  greeting() {
+    return Object.getPrototypeOf(this).greeting.call(this) + ',hi';
+  }
+};
+Object.setPrototypeOf(friend, person);
+console.log(friend.greeting()); // "hello,hi"
+console.log(Object.getPrototypeOf(friend) === person); // true
+```
+
+现在ES6引入 Super ，相当于指向原型对象的指针，实际上也就是Object.getPrototypeOf(this)的值。于是可以这样简化上面方法：
+
+```
+let friend = {
+  greeting() {
+    // return Object.getPrototypeOf(this).greeting.call(this) + ',hi';
+    return super.greeting() + ',hi';
+  }
+};
+``` 
+注意，必须要在简写方法的对象中使用 Super ，如果在其他方法声明中使用会导致语法错误：
+
+```
+let friend = {
+  greeting: function() {
+    // 语法错误
+    return super.greeting() + ',hi';
+  }
+};
+```
+### <a name="Destructuring">Destructuring:解构 -- 使数据访问更便捷</a>
 
 >数组解构赋值
 
@@ -720,8 +760,10 @@ console.log(Object.getPrototypeOf(friend) === dog); // true
     radius: 30		
   });
 ```
-### Default + Rest + Spread
-简单理解为三种形式的参数：Default parameters,Rest parameters, Spread Operator
+> Default + Rest + Spread
+
+简单理解为三种形式的参数：Default parameters, Rest parameters,  Spread Operator
+
 ```
 
   function f(x, y=12) {
