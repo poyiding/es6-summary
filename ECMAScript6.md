@@ -8,11 +8,13 @@ ES6目前浏览器不全部支持，需要bebal转换成标准的ES5才能被各
 * <a href='#string'>字符串和正则表达式扩展</a>
 * <a href='#function'>函数</a>
 * <a href="#obj">扩展对象的功能属性</a>
-* <a href="Destructuring">解构--是数据访问更便捷</a>
+* <a href="#Destructuring">解构--使数据访问更便捷</a>
+* <a href="#Symbol">Symbol和Symbol属性</a>
 ### <a name="scrop">块级作用域的绑定</a>
 > let
 
 ES6的let类似于var,只是var声明有全局作用域和局部作用域，而let声明只在块级作用域内有效
+
 ```
   var a = 1;
   let b= 2;
@@ -42,7 +44,7 @@ ES6的let类似于var,只是var声明有全局作用域和局部作用域，而l
     };
   }
   a[6](); // 6
-  循环中var声明的变量会提升，相当于在当前作用域申明var i;，每次循环都是引用相同的变量i,就会覆盖，而let仅在块级作用域有效，每次都会新创建变量i,并将其初始化当前值，所以函数能拿到当前i的副本，因此最后输出6。
+  循环中var声明的变量会提升，相当于在当前作用域申明var i;每次循环都是引用相同的变量i,就会覆盖，而let仅在块级作用域有效，每次都会新创建变量i,并将其初始化当前值，所以函数能拿到当前i的副本，因此最后输出6。
 ```
 * var声明会有变量提前，如果在声明前使用就是undefined，而let则避免这种现象，一定在let声明后使用，否则报ReferenceError
 * 存在暂时性死区：在区块中使用let命令声明变量之前，该变量都是不可用的。因此，凡是在声明之前就使用这些变量，就会报错。
@@ -784,6 +786,105 @@ let friend = {
   f2(...[1,2,3]) // 6
   // 数组的每个元素对应为argument，而这之前，如果要将数组作为参数，需要用f2.apply(this,[1,2,3])
 ```
+### <a name="Symbol">Symbol 和 Symbol 属性</a>
+
+ES6之前，javascript包含5种原始数据类型：字符串型、数字型、布尔型、undefined、null。es6引入了第6种原始数据类型：Symbol。
+
+ES5 的对象属性名都是字符串，这容易造成属性名的冲突。比如，你使用了一个他人提供的对象，但又想为这个对象添加新的方法（mixin 模式），新方法的名字就有可能与现有方法产生冲突。如果有一种机制，保证每个属性的名字都是独一无二的就好了，这样就从根本上防止属性名的冲突。这就是 ES6 引入Symbol的原因。
+
+> 定义Symbol方法
+```
+const firstName = Symbol();
+const person = {};
+person[firstName] = 'Nicholas';
+
+console.log(person[firstName]) // Nicholas
+
+// Symbol 函数可以接受一个字符串作为参数，表示对 Symbol 实例的描述，主要为了方便阅读和调试代码。
+const firstName = Symbol('first name');
+const person = {};
+person[firstName] = 'Nicholas';
+
+console.log(person[firstName]); // 'Nicholas'
+console.log(fisrtName); // "Symbol(first name)"
+```
+
+>Symbol使用方法
+```
+const name = Symbol('name');
+// 1.使用可计算对象字面量属性
+const person = {
+  [name]: 'sam'
+};
+
+// 2.使用Object.defineProperty或Object.defineProperties
+// 将属性设为只读
+Object.defineProperty(person, name, {writeable: false});
+
+const mySymbol = Symbol('coco');
+Object.defineProperties(person,{
+  [mySymbol]: {
+    value: 'this is mySymbol',
+    writable: false
+  }
+});
+```
+>Symbol共享体系
+
+如果希望创建一个可共享的Symbol或者说使用同一个Symbol值，可以用 Symbol.for() 方法。它接受一个字符串作为参数，然后搜索有没有以该参数作为名称的 Symbol 值。如果有，就返回这个 Symbol 值，否则就新建并返回一个以该字符串为名称的 Symbol 值。
+
+```
+const uid = Symbol.for('uid');
+const obj = {
+  [uid]: '1234'
+};
+const uid2 = Symbol.for('uid');
+
+console.log(uid === uid2);  // true
+console.log(obj[uid], obj[uid2]); // 1234 1234
+```
+
+还有一个与 Symbol 有关的特性：可以使用 Symbol.keyFor() 方法在Symbol全局注册表中检索与Symbol有关的key,比如：
+
+```
+const uid = Symbol.for('uid');
+console.log(Symbol.keyFor(uid)); // 'uid'
+
+const uid2 = Symbol('uid');
+console.log(Symbol.keyFor(uid2)); // undefined
+```
+>Symbol 属性检索
+
+Object.keys()和Object.getOwnPropertyNames()方法可以检索对象中所有的属性名。然而，这两个方法都不支持 Symbol 属性，而是添加了一个Object.getOwnPropertySymbols()来检索对象中 Symbol 属性,返回一个 Symbol 自有属性的数组。
+
+```
+const uid = Symbol.for('uid');
+const obj = {
+  [uid]: '8866'
+};
+
+const symbols = Object.getOwnPropertySymbols(obj);
+console.log(symbols.length); // 1
+console.log(symbols[0]); // 'Symbol(uid)'
+console.log(obj[symbols[0]]); // 8866
+```
+> well-konwn Symbol 内部操作
+
+除了定义自己使用的 Symbol 值以外，ES6 还提供了 11 个内置的 Symbol 值，指向语言内部使用的方法。
+
+* Symbol.hasInstance ：一个在执行 instanceof 是调用的内部方法，一个与检测对象的计继承信息。
+* Symbol.isConcatSpreadable ：一个布尔值，表示该对象用于Array.prototype.concat()时，是否将集合内的元素合并到同一层级。
+* Symbol.iterator ：返回一个迭代器的方法
+* Symbol.match ：一个在调用 String.prototype.match()时调用的方法，用于比较字符串。
+* Symbol.replace ：一个在调用 String.prototype.replace()时调用的方法，用于替换字符串的子串。
+* Symbol.search :一个在调用 String.prototype.search()时调用的方法，用于在字符串定位子串。
+* Symbol.species : 用于创建派生类的构造函数。
+* Symbol.split : 一个在调用 String.prototype.split()时调用的方法，用于分割字符串。
+* Symbol.toPrimitive :一个返回对象原始值的方法。
+* Symbol.toStingTag :一个在调用 String.prototype.toString()时使用的字符串，用于创建对象描述。
+* Symbol.unscopables :一个定义了一些不可被with语句引用的对象属性名称的对象集合。
+
+这里不一一去记录Symbol每个内置值的具体使用，可以去查阅相关文档和API来了解它们具体内容。
 ### classes: 类
 es6中class是基于原型的面向对象的简单写法(语法糖)，class支持基于原型的继承，super()调用，实例和静态方法，构造函数
 
@@ -827,6 +928,7 @@ let b = new B();
 b.m() // 2
 
 ```
+
 ### promise
 * Promise是抽象异步处理对象,它提供统一的API,各种异步操作都可以用同样的方法进行处理。
 * 有了Promise对象，就可以将异步操作以同步操作的流程表达出来，避免了层层嵌套的回调函数。
