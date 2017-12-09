@@ -885,6 +885,112 @@ console.log(obj[symbols[0]]); // 8866
 * Symbol.unscopables :一个定义了一些不可被with语句引用的对象属性名称的对象集合。
 
 这里不一一去记录Symbol每个内置值的具体使用，可以去查阅相关文档和API来了解它们具体内容。
+
+### Set集合与Map集合
+
+Set集合是一种无重复元素的列表，你可以按照插入的顺序迭代它的元素。 Set中的元素只会出现一次，即 Set 中的元素是唯一的。
+
+Map集合内含多组键值对，集合中每个元素分别存放着可访问的键名和它对应的值，经常被用于缓存频繁取用的数据。
+
+Es5中可以利用对象来模拟这两种Set集合与Map集合，但也会存在某些问题。比如
+
+```
+var map = Object.create(null);
+map[5] = "bar";
+
+console.log(map["5"]); // "bar"
+
+var myMap = Object.create(null),
+     key1 = {},
+     key2 = {};
+myMap[key1] = 'foo';
+
+console.log(myMap[key2]); // 'foo'
+```
+例子中属性的键名会被转换成字符串，所以会导致很难发现的错误，因此Es6加入了Set集合与Map集合这两种新特性。
+#### ES6中的Set集合
+>使用Set对象
+
+```
+let set = new Set();
+set.add(5); // add()向集合添加元素
+set.add('5');
+set.size; // 2
+
+set.has(5); // true
+set.delete('5'); // 从set中移除5
+set.has('5'); // false 
+
+```
+>Set集合的forEach()方法
+
+```
+let set = new Set([1, 2]);
+
+set.forEach(function(value, key, ownerSet){
+  console.log(key + " " + value);
+  console.log(ownerSet === set);
+});
+//output
+1 1
+true
+2 2
+true
+```
+注意到forEach()的回调函数参数中value和key是一样的，这点和数组的forEach()是有差别。
+>Array相关
+```
+let mySet = new Set([1,2,3,4,5]); // 用Set构造器将Array转换为Set
+console.log([...mySet]); // [1,2,3,4,5]
+
+// 将重复元素的数组转为Set集合，它会自动去掉重复元素，利用这个特性可以用来数组去重。
+let array = [... new Set([1,2,3,3,6,7,7,8])];
+console.log(array) // [1, 2, 3, 6, 7, 8]
+```
+#### WeakSet
+WeakSet 结构与 Set 类似，也是不重复的值的集合。但是，它与 Set 有几个区别。
+
+首先，WeakSet 的成员只能是对象，而不能是其他类型的值。
+
+```
+const ws = new WeakSet();
+ws.add(1);
+//TypeError: Invalid value used in weak set
+```
+其次，只要Set实例中引用的存在，垃圾回收机制就不能释放该对象内存的空间，这有可能会导致内存泄漏。而通过weakSet创建的实例，垃圾回收机制会自动回收该对象的内存空间,例如：
+
+```
+let set = new Set();
+let key = {};
+
+set.add(key);
+console.log(set.size); // 1
+
+key = null; // 移除原始引用
+console.log(set.size);  // 1
+
+// 如果我们使用 new WeakSet()来实例对象，当key = null时，javascript一定会回收key的引用，由于WeakSet没有size属性，没法测试，但这是事实。
+```
+另外，WeakSet不支持size,不能用forEach()方法和不能被用于for-of循环。
+
+>创建WeakSet
+
+```
+let set = new WeakSet();
+let key = {};
+
+set.add(key);
+set.has(key); // true
+set.delete(key); 
+set.has(key); // false
+
+let key1 = {},
+    key2 = {},
+    myset = new WeakSet([key1, key2]);
+myset.has(key1); // true
+myset.has(key2); // false
+```
+#### Es6中的Map集合
 ### classes: 类
 es6中class是基于原型的面向对象的简单写法(语法糖)，class支持基于原型的继承，super()调用，实例和静态方法，构造函数
 
