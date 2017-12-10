@@ -10,6 +10,7 @@ ES6目前浏览器不全部支持，需要bebal转换成标准的ES5才能被各
 * <a href="#obj">扩展对象的功能属性</a>
 * <a href="#Destructuring">解构--使数据访问更便捷</a>
 * <a href="#Symbol">Symbol和Symbol属性</a>
+* <a href="#Set">Set集合与Map集合</a>
 ### <a name="scrop">块级作用域的绑定</a>
 > let
 
@@ -886,11 +887,9 @@ console.log(obj[symbols[0]]); // 8866
 
 这里不一一去记录Symbol每个内置值的具体使用，可以去查阅相关文档和API来了解它们具体内容。
 
-### Set集合与Map集合
+### <a name="Set">Set集合与Map集合</a>
 
 Set集合是一种无重复元素的列表，你可以按照插入的顺序迭代它的元素。 Set中的元素只会出现一次，即 Set 中的元素是唯一的。
-
-Map集合内含多组键值对，集合中每个元素分别存放着可访问的键名和它对应的值，经常被用于缓存频繁取用的数据。
 
 Es5中可以利用对象来模拟这两种Set集合与Map集合，但也会存在某些问题。比如
 
@@ -991,6 +990,146 @@ myset.has(key1); // true
 myset.has(key2); // false
 ```
 #### Es6中的Map集合
+
+Es6中的Map类型是一种储存许多键值对的有序列表，其中键值和对应的值支持所有的数据类型。传统Es5中对象只能用字符串当作键，这给它的使用带来了很大的限制。Map对象键名的等价性是通过Object.is()判断，所以，数字5与字符串"5"的key是两种类型。
+
+>Map集合初始化方法
+
+```
+let map = new Map();
+map.set("name", "sam");
+map.set("age", 30);
+
+map.size; // 2
+map.get("name"); // "sam"
+map.get("age"); // 30
+
+let map1 = new Map("person", {"name": "coco","age": 25});
+map1.get("person") // {"name": "coco","age": 25}
+```
+>Map集合支持的方法
+
+```
+let map = new Map();
+map.set("name", "sam");
+map.set("age", 30);
+
+map.has("name"); // true 检测是否存在key
+map.delete("name"); // 移除key以及对应的键值
+map.has("name"); // false
+map.clear(); // 移除Map中所有的键值对。
+map.szie; // 0
+```
+> Map集合的forEach() 方法
+
+Map集合和Set集合和数组的 forEach() 方法类似，回调函数接受三个参数。
+
+```
+let map = new Map([["name", "coco"], ["age", 25]]);
+
+map.forEach(function(value, key, ownerMap) {
+  console.log(key + " " + value);
+  console.log(ownerMap === map);
+});
+
+// output
+name coco
+true
+age 25
+true
+```
+#### WeakMap
+
+同样，WeakMap结构与Map结构类似，也是用于生成键值对的集合。它与Map的区别有几点：
+
+首先，WeakMap只接受对象作为键名（null除外），不接受其他类型的值作为键名。
+
+```
+let map = new Map();
+map.set("name", "sam");
+// Invalid value used as weak map key
+```
+其次，WeakMap的键名所指向的对象，不计入垃圾回收机制。WeakMap一个典型应用场景是，在网页的 DOM 元素上添加数据，就可以使用WeakMap结构。当该 DOM 元素被清除，其所对应的WeakMap记录就会自动被移除。
+
+```
+let map = new Map(),
+  element = document.getElementById('example');
+
+map.set(element, "Original");
+map.get(element); // "Original"
+
+// 移除element元素
+element.parentNode.removeChild(element);
+element = null;
+// 此时WeakMap 集合为空
+```
+另外，WeakMap不支持size属性，所以没法验证集合是否为空，和WeakSet一样，不支持forEach(),也不支持clear()方法;
+
+>WeakMap初始化
+
+```
+// key必须是对象
+let key1 ={},
+  key2 = {},
+  map = new WeakMap([[key1, "hello"], [key2, 30]]);
+
+map.has(key1); // true
+map.get(key1); // "hello"  
+map.has(key2); // true
+map.get(key2); // 30 
+```
+> 私有对象数据
+
+尽管WeakMap的大多数是用于储存DOM元素，它的另一个用处是部署私有属性。
+```
+function Person(name) {
+  this._name = name;
+}
+Person.prototype.getName = function() {
+  return this._name;
+}
+```
+我们可以通过getName()方法来读取this._name属性；但也没有标规定如何写 _name 属性，所以它有可能被无意间重写覆盖。
+
+在Es5中可以通过以下这种模式创建一个对象接近真正的私有数据：
+
+```
+var person = (function() {
+  var privateData = {},
+    privateId = 0;
+
+  function Person(name) {
+    Object.defineProperty(this, "_id", { value: privateId++ });
+    privateData[this._id] = {
+      name: name
+    }
+  }
+  
+  Person.prototype.getName = function() {
+    return privateData[this._id].name;
+  }
+
+  return Person;
+}());
+```
+这种方法的最大问题是引用了闭包，如果我们不主动管理，由于被实例的对象不知何时被销毁，因此privateDate永远不会消失；而使用WeakMap就可以解决这个问题。
+
+```
+let person = (function() {
+  let privateData = new WeakMap();
+
+  function Person(name) {
+    privateData.set(this, { name: name });
+  }
+
+  Person.prototype.getName = function() {
+    return privateData.get(this).name;
+  }
+
+  return Person;
+}());
+
+```
 ### classes: 类
 es6中class是基于原型的面向对象的简单写法(语法糖)，class支持基于原型的继承，super()调用，实例和静态方法，构造函数
 
