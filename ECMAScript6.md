@@ -1130,6 +1130,285 @@ let person = (function() {
 }());
 
 ```
+### 迭代器(iterator)和生成器(Generator)
+
+#### 迭代器概念
+迭代器是一种特殊对象，它具有一些专门为迭代过程设计的专有接口，所有迭代器对象都有一个next()方法，每次调用都返回一个结果对象。结果对象有两个属性：一个是value,表示将要返回的值;另一个是done,它是一个布尔类型值，当没有更多可返回的数据时返回true，否则返回false。
+
+了解这些，我们用ES5的语法来创建一个迭代器，更加直观：
+
+```
+function createIterator(items) {
+  var i = 0;
+  return {
+    next: function () {
+      var done = (i > items.length);
+      var value = !done ? items[i++] : undefined ;
+
+      return {
+        value: value,
+        done: done
+      };
+    }
+  };
+}
+
+var iterator = createIterator([1, 2, 3]);
+iterator.next(); // {value: 1, done: false}
+iterator.next(); // {value: 2, done: false}
+iterator.next(); // {value: 3, done: false}
+iterator.next(); // {value: undefined, done: true}
+```
+#### 生成器概念
+
+生成器是一种返回迭代器的函数，通过function 关键字后的 * 来表示，函数中会用到新的关键字yield，就像这样：
+```
+function *createGenerator() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+let out = createGenerator();
+out.next().value; // 1
+out.next().value; // 2
+out.next().value; // 3
+```
+使用yield关键字可以返回任何值或表达式，所以通过可通过生成器函数批量给迭代器添加元素。
+
+```
+let createIterator = function *(items) {
+  for (let i = 0; i < items.length; i++ ) {
+    yield items[i];
+  }
+}
+let iterator = createIterator([1, 2, 3]);
+iterator.next(); // {value: 1, done: false}
+iterator.next(); // {value: 2, done: false}
+iterator.next(); // {value: 3, done: false}
+iterator.next(); // {value: undefined, done: true}
+```
+#### 可迭代对象和 for-of 循环
+可迭代对象具有Symbol.iterator属性，是一种与迭代器密切相关的对象。Symbol.iterator通过指定的函数可以返回一个作用于附属对象的迭代器，直接通过例子来看：
+```
+// 通过symbol.iterator来访问默认的迭代器
+
+let values = [1, 2, 3];
+let iterator = values[Symbol.iterator]();
+iterator.next(); // {value: 1, done: false}
+iterator.next(); // {value: 2, done: false}
+iterator.next(); // {value: 3, done: false}
+iterator.next(); // {value: undefined, done: true} 
+
+```
+for-of循环中调用迭代对象next()方法：
+
+```
+let values = [1, 2, 3];
+for (let num of values) {
+  console.log(num);
+}
+1
+2
+3
+```
+这段for-of循环的代码通过调用values数组 Symbol.iterator 方法来获取迭代器，这个过程是在javascript引擎背后完成。随后迭代器中的next()被多次调用，其返回对象的value属性值储存在变量num中，依次为1,2,3.
+
+#### 内建迭代器
+
+> 集合对象迭代器
+
+在ES6中，所有集合对象(数组、Set集合、Map集合)和字符串都是可迭代对象，它们都有默认的迭代器。3种对象都内置了以下三种迭代器：
+
+- entries() 返回一个迭代器，其值为多个键值对；
+- values() 返回一个迭代器，其值为集合的值；
+- keys() 返回一个迭代器，其值为集合中所有的键名。
+
+```
+let colors = ['red', 'green', 'blue'];
+let tracking = new Set([1234,5678,9012]);
+let data = new Map();
+data.set('title', 'understanding ES6');
+data.set('name', 'sam');
+
+// entries()迭代器
+for(let entry of colors.entries()) {
+  console.log(entry);
+}
+for(let entry of tracking.entries()) {
+  console.log(entry);
+}
+for(let entry of data.entries()) {
+  console.log(entry);
+}
+// 分别输出以下内容
+[0, "red"]
+[1, "green"]
+[2, "blue"]
+[1234, 1234]
+[5678, 5678]
+[9012, 9012]
+["title", "understanding ES6"]
+["name", "sam"]
+```
+上面代码调用每个集合的entries()方法获取一个迭代器，并使用for-of循环来遍历元素，同样我们调用 values( ) 和 keys( ) 迭代器会返回集合中所有的值和键。
+
+每个集合都有一个默认的迭代器，在for-of循环中，如果没有显示指定则使用默认的迭代器。
+
+```
+// 默认调用colors.values()迭代器
+for(let entry of colors {
+  console.log(entry);
+}
+
+// 默认调用tracking.values()迭代器
+for(let entry of tracking.entries()) {
+  console.log(entry);
+}
+
+// 默认调用data.entries()迭代器
+for(let entry of data.entries()) {
+  console.log(entry);
+}
+
+```
+> 字符串迭代器
+
+```
+var message = 'A 𠮷 B';
+for (var i=0; i < message.length; i++ ) {
+  console.log(message[i]);
+}
+
+for (let c of message ) {
+  console.log(message[i]);
+}
+```
+第一种用ES5遍历结果并不是预期中的 A 𠮷 B，原因是双字节字符是两个独立的编码单元(见String章节)，而第二种方法修改用for-of修改字符串中的默认迭代器可得到我们想要的结果。
+
+>NodeList迭代器
+
+DOM标准中有个NodeList类型，它是节点的集合，不是数组，我们在遍历NodeList时如果用forEach()、map()方式在某些浏览器会失败，具体查看[NodeList](https://developer.mozilla.org/zh-CN/docs/Web/API/NodeList)。在ES6添加了默认迭代器后，NodeList类型也拥有了默认迭代器，所以这时遍历它我们用for-of循环以及其他支持对象默认迭代器的地方。
+```
+var divs = docuement.getElementsByTagName('div');
+
+for (let div of divs) {
+  console.log(div);
+}
+```
+> 展开运算符与非数组可迭代对象
+
+前面我们在Set集合和Map集合章节中把它们转换成一个数组用到展开运算符(...):
+
+```
+let set = new Set([1, 2, 3, 4, 5]),
+  array = [...set]; // [1, 2, 3, 4, 5];
+
+let map = new Map([['name', 'sam'], ['age', '30']]);
+  arr = [...map]; // [['name', 'sam'], ['age', '30']]
+
+//  数组字面量中使用展开运算符
+let num1 = [1, 2, 3],
+  num2 = [100, 101, 103];
+  allNum = [0, ...num1, ...num2];
+console.log(allNum); // [0, 1, 2, 3, 101, 102, 103,]
+```
+展开运算符其实就是利用迭代器操作所有可迭代对象，从迭代器读取所有的值，按照返回的顺序插入到数组。
+
+##### 高级迭代器功能
+
+了解了迭代器基础功能可以帮助我们完成一些任务，除了这些简单的基本功能外，我们可以利用迭代器做一些复杂的任务，这里只记录异步任务执行这个高级功能。
+
+由于生成器支持在函数中暂停代码执行，因而可以深入挖掘异步处理的更多用法。比如看下用Node.js处理读取文件的代码：
+
+```
+let fs = require("fs");
+
+fs.readFile('config.json', function(err, contents) {
+  if(err) {
+    throw err;
+  }
+
+  doSomething(contents);
+  console.log(done);
+});
+```
+调用fs.readFile()方法时要求传入读取的文件名和一个回调函数，操作结束后调用回调函数并检查是否存在错误，没有则处理返回的的内容。这种方式的问题就是，如果需要嵌套回调，或者序列化一系列的异步操作，则会变得非常复杂，这时生成器和yield语句就派上用场了。
+
+先看一个简单的任务执行器：
+
+```
+function run(taskDef) {
+  let task = taskDef(); // 创建一个生成器
+  // 开始执行任务
+  let result = task.next();
+  // 循环调用next()函数
+  function step() {
+    if (!result.done) {
+      result = task.next(result.value);
+      step();
+    }
+  }
+  // 开始执行
+  step();
+}
+
+run(function *(){
+  let value = yield 1;
+  console.log(value); // 1
+
+  value = yield value + 3;
+  console.log(value); // 4
+});
+```
+现在我们将任务执行器稍作修改，当 result.value 是一个函数时，执行器先执行这个函数再将结果传入next()方法，这样可以适用所有的异步任务：
+
+```
+function run(taskDef) {
+  let task = taskDef(); // 创建一个生成器
+  // 开始执行任务
+  let result = task.next();
+  // 循环调用next()函数
+  function step() {
+    if (!result.done) {
+      if (typeof result.value === 'function') {
+        result.value(function (err, data) {
+          if(err) {
+            result = task.throw(err);
+            return ;
+          }
+          result = task.next(data);
+          step();
+        });
+      } else {
+        result = task.next(result.value);
+        step();
+      }
+    }
+  }
+  // 开始执行
+  step();
+}
+
+// 现在用异步执行器来在Node.js中环境中读取文件的数据
+let fs = require('fs');
+// 创建一个包装器
+function readFile(fileName) { 
+  return function(callback) {
+    fs.readFile(fileName, callback);
+  }
+}
+
+run(function *() {
+  let contents = yield readFile('config.json');
+  doSomething(contents);
+  console.log('done');
+});
+```
+这段代码中没有任何回调，异步的readFile()操作却正常执行，出来yield关键字外，其他代码与同步代码一样，所以可读性更好。
+
+当然，这个示例中的使用的模式也有问题，就是我们不能确保函数中返回的其他函数一定是异步的，在ES6的Promise提供了一种更加灵活的方式来调度异步任务，后面的Promise在继续看这个问题。
+
+
 ### classes: 类
 es6中class是基于原型的面向对象的简单写法(语法糖)，class支持基于原型的继承，super()调用，实例和静态方法，构造函数
 
