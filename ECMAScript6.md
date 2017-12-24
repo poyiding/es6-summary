@@ -11,6 +11,8 @@ ES6目前浏览器不全部支持，需要bebal转换成标准的ES5才能被各
 * <a href="#Destructuring">解构--使数据访问更便捷</a>
 * <a href="#Symbol">Symbol和Symbol属性</a>
 * <a href="#Set">Set集合与Map集合</a>
+* <a href="#iterator">迭代器(iterator)和生成器(Generator)</a>
+* <a href="#class">classes: 类</a>
 ### <a name="scrop">块级作用域的绑定</a>
 > let
 
@@ -1130,7 +1132,7 @@ let person = (function() {
 }());
 
 ```
-### 迭代器(iterator)和生成器(Generator)
+### <a name="iterator">迭代器(iterator)和生成器(Generator)</a>
 
 #### 迭代器概念
 迭代器是一种特殊对象，它具有一些专门为迭代过程设计的专有接口，所有迭代器对象都有一个next()方法，每次调用都返回一个结果对象。结果对象有两个属性：一个是value,表示将要返回的值;另一个是done,它是一个布尔类型值，当没有更多可返回的数据时返回true，否则返回false。
@@ -1408,9 +1410,46 @@ run(function *() {
 
 当然，这个示例中的使用的模式也有问题，就是我们不能确保函数中返回的其他函数一定是异步的，在ES6的Promise提供了一种更加灵活的方式来调度异步任务，后面的Promise在继续看这个问题。
 
+### <a name="class">classes: 类</a>
+在ES5及之前没有类的概念，通常是通过构造函数的方式自定义类型。ES6中class是基于原型的面向对象的简单写法(语法糖)，class支持基于原型的继承，super()调用，实例和静态方法，构造函数。
 
-### classes: 类
-es6中class是基于原型的面向对象的简单写法(语法糖)，class支持基于原型的继承，super()调用，实例和静态方法，构造函数
+```
+function PersonType(name) {
+  this.name = name;
+}
+PersonType.prototype.sayName = function() {
+  console.log(this.name);
+}
+var person = new PersonType('sam');
+person.sayName(); // 'sam'
+
+person instanceof PersonType // true
+person instanceof Object // true
+
+// ES6 class 声明写法
+class PersonClass {
+  // 等价于PersonType构造函数
+  constructor(name) {
+    this.name = name;
+  }
+  // 等价于PersonType.protype.sayName
+  sayName() {
+    console.log(this.name);
+  }
+}
+const person = new PersonClass('sam');
+person.sayName(); // 'sam'
+
+person instanceof PersonClass // true
+person instanceof Object // true
+typeof PersonClass // 'function'
+typeof PersonClass.prototype.sayName // 'function'
+```
+我们看到，类的声明就是基于原先构造函数声明的语法糖，通过与语法糖包装后就可以代替我们通过构造函数自定义类型的功能，你只需要关系如何自定义正确的类。需要提示一点是：类的属性不可以被赋予新值,PersonClass.prototype是一个只可读的类属性。
+
+#### 继承与派生类
+
+在ES6之前，我们在面向对象方式(OOP)中实现[继承](https://developer.mozilla.org/zh-CN/docs/Learn/JavaScript/Objects/Inheritance)是一件比较麻烦的事，而且还容易出错，尤其对于新手。ES6的类的出现让我们更轻松的实现继承功能。
 
 ```
 class Rectangle {
@@ -1425,34 +1464,32 @@ class Rectangle {
     return this.height * this.width;
   }
 }
-const square = new Rectangle(10, 10);
-console.log(square.area);
 
-通过extends继承和使用super调用父对象的函数
-class A {
-  constructor() {
-    this.x = 1;
-  }
-  print() {
-    console.log(this.x);
+class Square extends Rectangle {
+  constructor(length) {
+    // 通过super()来继承Rectangel
+    super(length, length);
   }
 }
 
-class B extends A {
-  constructor() {
-    super();
-    this.x = 2;
-  }
-  m() {
-    super.print();
-  }
-}
-
-let b = new B();
-b.m() // 2
+const square = new Square(10);
+console.log(square.area); // 100
 
 ```
+继承自其它类的类被称作派生类，如果派生类中指定了构造函数则必须调用 super(), 否则会程序报错。如果选择不使用构造函数，则当创建新的类实例会自动调用 super()并传入所有参数：
 
+```
+class Square extends Rectangle {
+  // 没有构造函数
+}
+
+// 等价于
+class Square extends Rectangle {
+  constructor(...args) {
+    spuer(...args);
+  }
+} 
+```
 ### promise
 * Promise是抽象异步处理对象,它提供统一的API,各种异步操作都可以用同样的方法进行处理。
 * 有了Promise对象，就可以将异步操作以同步操作的流程表达出来，避免了层层嵌套的回调函数。
