@@ -1493,7 +1493,7 @@ class Square extends Rectangle {
 ```
 ### <a name="API">Math + Number + String + Array APIs </a>
 
-[Number API]      (https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)<br/>
+[Number API](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)<br/>
 [Math API](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Math)<br/>
 [Array API](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)
 
@@ -1506,13 +1506,21 @@ class Square extends Rectangle {
 "abcdef".endsWith("ef") // true
 
 Array.from(document.getElementsByTagName('div')) // 返回NodeList的数组
+
 Array.of("a", 2, 3) // ["a",2,3]
+
 [1, 4, -5, 10].find((n) => n < 0) // -5
+
 [1,2,3].findIndex(x => x == 2) // 1
+
 ["a", "b", "c"].entries() // iterator [0, "a"], [1,"b"], [2,"c"]
+
 ["a", "b", "c"].keys() // iterator 0, 1, 2
+
 ["a", "b", "c"].values() // iterator "a", "b", "c"
-数组的entries()、keys()、values()都返回的是一个遍历器，可以用for...of循环
+
+// 数组的entries()、keys()、values()都返回的是一个遍历器，可以用for...of循环
+
 for (let index of ['a', 'b'].keys()) {
   console.log(index);
 }
