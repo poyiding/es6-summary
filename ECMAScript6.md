@@ -13,6 +13,7 @@ ES6目前浏览器不全部支持，需要bebal转换成标准的ES5才能被各
 * <a href="#Set">Set集合与Map集合</a>
 * <a href="#iterator">迭代器(iterator)和生成器(Generator)</a>
 * <a href="#class">classes: 类</a>
+* <a href="#API">Math + Number + String + Array APIs</a>
 ### <a name="scrop">块级作用域的绑定</a>
 > let
 
@@ -1447,7 +1448,7 @@ typeof PersonClass.prototype.sayName // 'function'
 ```
 我们看到，类的声明就是基于原先构造函数声明的语法糖，通过与语法糖包装后就可以代替我们通过构造函数自定义类型的功能，你只需要关系如何自定义正确的类。需要提示一点是：类的属性不可以被赋予新值,PersonClass.prototype是一个只可读的类属性。
 
-#### 继承与派生类
+###### 继承与派生类
 
 在ES6之前，我们在面向对象方式(OOP)中实现[继承](https://developer.mozilla.org/zh-CN/docs/Learn/JavaScript/Objects/Inheritance)是一件比较麻烦的事，而且还容易出错，尤其对于新手。ES6的类的出现让我们更轻松的实现继承功能。
 
@@ -1489,6 +1490,47 @@ class Square extends Rectangle {
     spuer(...args);
   }
 } 
+```
+### <a name="API">Math + Number + String + Array APIs </a>
+
+[Number API]      (https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)<br/>
+[Math API](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Math)<br/>
+[Array API](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)
+
+简单看下ES6提供的一些新特性，具体上面每个API的详细内容自己可以查阅。
+
+```
+"abcde".includes("cd") // true
+"abc".repeat(3) // "abcabcabc"
+"abcdef".startsWith("ab") // true
+"abcdef".endsWith("ef") // true
+
+Array.from(document.getElementsByTagName('div')) // 返回NodeList的数组
+Array.of("a", 2, 3) // ["a",2,3]
+[1, 4, -5, 10].find((n) => n < 0) // -5
+[1,2,3].findIndex(x => x == 2) // 1
+["a", "b", "c"].entries() // iterator [0, "a"], [1,"b"], [2,"c"]
+["a", "b", "c"].keys() // iterator 0, 1, 2
+["a", "b", "c"].values() // iterator "a", "b", "c"
+数组的entries()、keys()、values()都返回的是一个遍历器，可以用for...of循环
+for (let index of ['a', 'b'].keys()) {
+  console.log(index);
+}
+// 0
+// 1
+
+for (let elem of ['a', 'b'].values()) {
+  console.log(elem);
+}
+// 'a'
+// 'b'
+
+for (let [index, elem] of ['a', 'b'].entries()) {
+  console.log(index, elem);
+}
+// 0 "a"
+// 1 "b"
+
 ```
 ### promise
 * Promise是抽象异步处理对象,它提供统一的API,各种异步操作都可以用同样的方法进行处理。
@@ -1534,58 +1576,6 @@ getURL(URL).then(function onFulfilled(value){
 
 ```
 有关promise详细内容参考[promise迷你书](http://liubin.org/promises-book/#chapter1-what-is-promise)
-
-### Math + Number + String + Array + Object APIs
-
-[Number API](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)<br/>
-[Math API](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Math)
-
-```
-"abcde".includes("cd") // true
-"abc".repeat(3) // "abcabcabc"
-"abcdef".startsWith("ab") // true
-"abcdef".endsWith("ef") // true
-
-Array.from(document.getElementsByTagName('div')) // 返回NodeList的数组
-Array.of("a", 2, 3) // ["a",2,3]
-[1, 4, -5, 10].find((n) => n < 0) // -5
-[1,2,3].findIndex(x => x == 2) // 1
-["a", "b", "c"].entries() // iterator [0, "a"], [1,"b"], [2,"c"]
-["a", "b", "c"].keys() // iterator 0, 1, 2
-["a", "b", "c"].values() // iterator "a", "b", "c"
-数组的entries()、keys()、values()都返回的是一个遍历器，可以用for...of循环
-for (let index of ['a', 'b'].keys()) {
-  console.log(index);
-}
-// 0
-// 1
-
-for (let elem of ['a', 'b'].values()) {
-  console.log(elem);
-}
-// 'a'
-// 'b'
-
-for (let [index, elem] of ['a', 'b'].entries()) {
-  console.log(index, elem);
-}
-// 0 "a"
-// 1 "b"
-
-Object.assig()方法
-var obj = { a: 1 };
-var copy = Object.assign({}, obj);
-console.log(copy); // { a: 1 }
-需要注意的是Object.assign()是浅拷贝，容易使目标对象也改变
-var o1 = { a: 1 };
-var o2 = { b: 2 };
-var o3 = { c: 3 };
-
-var obj = Object.assign(o1, o2, o3);
-console.log(obj); // { a: 1, b: 2, c: 3 }
-console.log(o1);  // { a: 1, b: 2, c: 3 }
-
-```
 ### Moudle
 
 ```
