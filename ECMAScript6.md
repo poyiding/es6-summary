@@ -14,6 +14,9 @@ ES6目前浏览器不全部支持，需要bebal转换成标准的ES5才能被各
 * <a href="#iterator">迭代器(iterator)和生成器(Generator)</a>
 * <a href="#class">classes: 类</a>
 * <a href="#API">Math + Number + String + Array APIs</a>
+* <a href="#promise">Promise与异步编程</a>
+
+
 ### <a name="scrop">块级作用域的绑定</a>
 > let
 
@@ -1540,12 +1543,12 @@ for (let [index, elem] of ['a', 'b'].entries()) {
 // 1 "b"
 
 ```
-### promise
+### <a name="promise">Promise与异步编程</a>
 * Promise是抽象异步处理对象,它提供统一的API,各种异步操作都可以用同样的方法进行处理。
 * 有了Promise对象，就可以将异步操作以同步操作的流程表达出来，避免了层层嵌套的回调函数。
 
 ```
-var aPromise = new Promise(function(resolve, reject){
+const aPromise = new Promise(function(resolve, reject){
     setTimeout(function(){
         resolve("模拟异步"); 
     }, 500);
@@ -1560,7 +1563,7 @@ aPromise.then(function(message){
 
 function getURL(URL) {
     return new Promise(function (resolve, reject) {
-        var req = new XMLHttpRequest();
+        const req = new XMLHttpRequest();
         req.open('GET', URL, true);
         req.onload = function () {
             if (req.status === 200) {
@@ -1575,7 +1578,7 @@ function getURL(URL) {
         req.send();
     });
 }
-var URL = "http://httpbin.org/get";
+const URL = "http://httpbin.org/get";
 getURL(URL).then(function onFulfilled(value){
     console.log(value);
 }).catch(function onRejected(error){
@@ -1583,7 +1586,109 @@ getURL(URL).then(function onFulfilled(value){
 });
 
 ```
-有关promise详细内容参考[promise迷你书](http://liubin.org/promises-book/#chapter1-what-is-promise)
+以上只是一个promise简单的例子应用，有关promise详细内容移步参考[promise迷你书](http://liubin.org/promises-book/#chapter1-what-is-promise)，这里非常的详细讲解了promise知识。
+
+前面我们讲生成器时说到了它在异步执行的执行使用它，回顾一下：
+
+```
+function run(taskDef) {
+  let task = taskDef(); // 创建一个生成器
+  // 开始执行任务
+  let result = task.next();
+  // 循环调用next()函数
+  function step() {
+    if (!result.done) {
+      if (typeof result.value === 'function') {
+        result.value(function (err, data) {
+          if(err) {
+            result = task.throw(err);
+            return ;
+          }
+          result = task.next(data);
+          step();
+        });
+      } else {
+        result = task.next(result.value);
+        step();
+      }
+    }
+  }
+  // 开始执行
+  step();
+}
+
+// 现在用异步执行器来在Node.js中环境中读取文件的数据
+let fs = require('fs');
+// 创建一个执行器
+function readFile(fileName) { 
+  return function(callback) {
+    fs.readFile(fileName, callback);
+  }
+}
+
+run(function *() {
+  let contents = yield readFile('config.json');
+  doSomething(contents);
+  console.log('done');
+});
+```
+这个实现会让我们困惑，执行器返回的函数中再传一个callback,然后if else 多层嵌套来做容错。我们每个异步操作用Promise可以简化并通用化这个过程：
+
+```
+const fs = require('fs');
+
+function run(taskDef) {
+  // 创建迭代器
+  let task = taskDef();
+  // 开始执行异步任务
+  let result = task.next();
+  
+  function step() {
+    // 如果迭代器状态没有done则继续执行更多任务
+    if (!result.done) {
+      // 用一个Promise来解决会简化问题
+      let promise = Promise.resolve(result.value);
+      promise.then(function(value) {
+        result = task.next(value);
+        step();
+      }).catch(function (error){
+        result = task.throw(error);
+        step();
+      });
+    }
+  }
+  // 启动递归过程
+  stpe();
+}
+
+// 定义一个用于任务执行器的函数
+function readFile(fileName) {
+  retrun New Promise(function(resolve, reject) {
+    fs.readFlie(fileName, function(err, content) {
+      if(err) {
+        reject(err);
+      } else {
+        resolve(content);
+      }
+    });
+  });
+}
+
+// 执行异步任务
+
+run(function*() {
+  let contents = yield readFile('config.json');
+  doSomething(contents);
+
+});
+```
+这个方式有几点说明：
+
+调用Promise.resolve() 是为了防止函数返回不是Promise,是的话直接通过，不是就包装成一个Promise。
+
+run()函数可以运行所有使用yeild实现异步代码的生成器，而不会将Promise或回调函数暴露给开发者。
+
+由于函数调用返回值总会被转换成一个Promise,因此可以返回一个非Promise的值，yeild也可以正常运行，我们就不用对返回值进行检查。
 ### Moudle
 
 ```
