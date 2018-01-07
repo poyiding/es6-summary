@@ -15,7 +15,8 @@ ES6目前浏览器不全部支持，需要bebal转换成标准的ES5才能被各
 * <a href="#class">classes: 类</a>
 * <a href="#API">Math + Number + String + Array APIs</a>
 * <a href="#promise">Promise与异步编程</a>
-
+* <a href="#proxy">代理(Proxy)和反射(Reflection) API</a>
+* <a href="#moudle">ES6 Moudles</a>
 
 ### <a name="scrop">块级作用域的绑定</a>
 > let
@@ -1559,7 +1560,7 @@ aPromise.then(function(message){
     console.log("test" + message);
 });
 
-**promise在异步请求的例子**
+// **promise在异步请求的例子**
 
 function getURL(URL) {
     return new Promise(function (resolve, reject) {
@@ -1689,7 +1690,13 @@ run(function*() {
 run()函数可以运行所有使用yeild实现异步代码的生成器，而不会将Promise或回调函数暴露给开发者。
 
 由于函数调用返回值总会被转换成一个Promise,因此可以返回一个非Promise的值，yeild也可以正常运行，我们就不用对返回值进行检查。
-### Moudle
+
+### <a name="Proxy">代理(Proxy)和反射(Reflection) API</a> [](#jump)
+
+```
+未完成，待补充...
+```
+### <a name="module">Module</a>
 
 ```
 // lib/math.js
@@ -1697,16 +1704,19 @@ export function sum(x, y) {
   return x + y;
 }
 export var pi = 3.141593;
-模块的整体加载:用（*）指定一个对象，所有输出值都加载在这个对象上面。
+
+// 模块的整体加载:用（*）指定一个对象，所有输出值都加载在这个对象上面。
 // app.js
 import * as math from "lib/math";
 console.log("2π = " + math.sum(math.pi, math.pi));
-按模块加载
+
+
+// 按模块加载
 // app.js
 import {sum, pi} from "lib/math";
 console.log("2π = " + sum(pi, pi));
 
-export default 命令:为模块指定默认输出。这样其他模块加载该模块时，import命令可以为该匿名函数指定任意名字。
+// export default 命令:为模块指定默认输出。这样其他模块加载该模块时，import命令可以为该匿名函数指定任意名字。
 // default.js 
 export default function () {
   console.log('foo');
@@ -1715,8 +1725,19 @@ export default function () {
 // app.js
 import customName from './default';
 
-当然export default命令用在非匿名函数前，也是可以的。
+// example.js 导出
+export const color = 'red';
+function sum(num1, num2) {
+  return num1 + num2;
+}
+export default sum;
 
+// 引入example.js
+import sum, {color} from './example'
+console.log(sum(1, 2)); // 3
+console.log(color); // 'red'
+
+// example的导出和引入有两点需要注意：首先，export 如果不使用default关键字，导出的函数或类必须要有个名称；其次，在import语句中，默认值必须排在非默认值之前。
 ```
 
 #### 其他参考
