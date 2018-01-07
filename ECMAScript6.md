@@ -16,7 +16,7 @@ ES6目前浏览器不全部支持，需要bebal转换成标准的ES5才能被各
 * <a href="#API">Math + Number + String + Array APIs</a>
 * <a href="#promise">Promise与异步编程</a>
 * <a href="#proxy">代理(Proxy)和反射(Reflection) API</a>
-* <a href="#moudle">ES6 Moudles</a>
+* <a href="#module">ES6 Moudles</a>
 
 ### <a name="scrop">块级作用域的绑定</a>
 > let
@@ -1691,7 +1691,7 @@ run()函数可以运行所有使用yeild实现异步代码的生成器，而不�
 
 由于函数调用返回值总会被转换成一个Promise,因此可以返回一个非Promise的值，yeild也可以正常运行，我们就不用对返回值进行检查。
 
-### <a name="Proxy">代理(Proxy)和反射(Reflection) API</a> [](#jump)
+### [<a name="Proxy">代理(Proxy)和反射(Reflection) API</a>](#jump)
 
 ```
 未完成，待补充...
