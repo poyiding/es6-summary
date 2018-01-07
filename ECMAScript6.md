@@ -15,7 +15,7 @@ ES6目前浏览器不全部支持，需要bebal转换成标准的ES5才能被各
 * <a href="#class">classes: 类</a>
 * <a href="#API">Math + Number + String + Array APIs</a>
 * <a href="#promise">Promise与异步编程</a>
-* <a href="#proxy">代理(Proxy)和反射(Reflection) API</a>
+* <a href="#proxy" id="#jump">代理(Proxy)和反射(Reflection) API</a>
 * <a href="#module">ES6 Moudles</a>
 
 ### <a name="scrop">块级作用域的绑定</a>
