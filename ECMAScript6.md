@@ -15,7 +15,7 @@ ES6目前浏览器不全部支持，需要bebal转换成标准的ES5才能被各
 * <a href="#class">classes: 类</a>
 * <a href="#API">Math + Number + String + Array APIs</a>
 * <a href="#promise">Promise与异步编程</a>
-* <a href="#proxy" id="#jump">代理(Proxy)和反射(Reflection) API</a>
+* <a href="#proxy">代理(Proxy)和反射(Reflection) API</a>
 * <a href="#module">ES6 Moudles</a>
 
 ### <a name="scrop">块级作用域的绑定</a>
@@ -1691,12 +1691,99 @@ run()函数可以运行所有使用yeild实现异步代码的生成器，而不�
 
 由于函数调用返回值总会被转换成一个Promise,因此可以返回一个非Promise的值，yeild也可以正常运行，我们就不用对返回值进行检查。
 
-### [<a name="Proxy">代理(Proxy)和反射(Reflection) API</a>](#jump)
+### <a name="Proxy">代理(Proxy)和反射(Reflection) API</a>
+
+在MDN上的概念：Proxy对象用于定义基本操作的自定义行为（如属性查找，赋值，枚举，函数调用等）。
+
+看这个概念不好理解，Proxy它其实是拦截了javascript 底层对象的操作，这些底层操作被拦截后会触发响应特定操作的函数陷阱(handler)。比如我们定义一个对象 { }，然后往对象进行赋值，但是赋的值要是number类型，我们可以用Proxy来代理进行自定义操作来数据类型的准确性。
 
 ```
-未完成，待补充...
+// let p = new Proxy(target, handler); 基本语法
+
+let target = {};
+let p = new Proxy(target,{
+  set(trapTarget, key, value) {
+    if(typeof value !== 'number') {
+      throw Error('赋值不是一个数字');
+    }
+    return Reflect.set(trapTarget, key, value);
+  }
+});
+
+p.a = 666;
+console.log(p.a); // 666
+p.b = 'bbbb';
+console.log(p.b) // throw Error
 ```
+这段代码定义了一个代理来验证target对象赋的值是否是number类型。执行p.a时，Proxy拦截了javascript底层对象的赋值操作，进入handler(处理器),set陷阱被调用，如果值不是number就抛出错误，否则，代理调用Reflect.set()方法，接受三个参数添加新的属性并赋值。
+
+我们看到Proxy调用了反射(Reflect)来进行操作，当然如果不调用可以用 return trapTarget[key] = value 来代替。Reflect具有与处理器对象(handler)方法相同的名称。这些方法中的一些与 Object 上的对应方法相同。比如Object读取一个属性，其实默认特性是 Reflect.get(),其实javascript对象(Object)一些内置特性，都可以使用Reflect相应的方法来操作,具体每个特性不同点可以自己去查MDN。
+
+| 代理陷阱(handler) | 复写的特性 | 默认特性 |
+|----|-----|----|
+|get| 读取一个属性值| Reflect.get()|
+|set| 写入一个属性值| Reflect.set()|
+|has| in 操作符| Reflect.has()|
+|deleteProperty|delete 操作符| Reflect.deleteProperty()|
+|getPrototypeOf|Object.getPrototypeOf()| Reflect.getPrototypeOf()|
+|setPrototypeOf|Object.setPrototypeOf()|Reflect.setPrototypeOf()|
+|isExtensible|Object.isExtensible()|Reflect.isExtensible()|
+|defineProperty|Object.defineProperty()|Reflect.defineProperty()|
+|getOwnPropertyDescriptor|Object.getOwnPropertyDescriptor()|Reflect.getOwnPropertyDescriptor()|
+|ownKeys|Object.ownKeys()|Reflect.ownKeys()|
+|preventExtensions|Object.preventExtensions()|Reflect.preventExtensions()|
+|apply|调用一个函数 fun.apply(thisArg, [argsArray])|Reflect.apply()|
+|construct|用new调用一个函数|Reflect.construct()|
+
+上面这个表就是代理陷阱特性和Reflect特性表，所以我们经常用代理和Reflect结合来拦截对象操作进行自定义。看两个例子：
+
+```
+let target = {
+  name: 'sam',
+};
+
+let p = new Proxy(target, {
+  has(traptarget, key) {
+    if(key !== 'key') {
+      return Reflect.has(traptarget, key);
+    }
+  }
+});
+
+p.key = 'error';
+p.id= '0458',
+console.log('name' in p) // true;
+console.log('key' in p) // false;
+console.log('id' in p) // true;
+
+// 函数代理apply陷阱
+
+function Numbers(...values) {
+  // new.target 检测是否是new调用
+  if(typeof new.target === 'undefined'){
+    throw Error('该函数必须通过new来调用');    
+  }
+  this.values = values;
+}
+
+let proxy = new Proxy(Numbers, {
+  apply(trapTarget, thisArg, arguments) {
+    // 调用Reflect.construct来实例化对象，相当于new Func
+    return Reflect.construct(trapTarget, arguments);
+    
+    // 如果调用apply会抛出错误。
+    // return Reflect.apply(trapTarget, thisArg, arguments); 
+  }
+});
+
+let instance = proxy(1,2,3,4);
+instance.values; // [1,2,3,4]
+
+```
+
 ### <a name="module">Module</a>
+
+没什么好说介绍的，直接看使用场景吧。
 
 ```
 // lib/math.js
@@ -1744,4 +1831,4 @@ console.log(color); // 'red'
 * [learn ES2015](https://babeljs.io/learn-es2015/)
 * [es6features](https://github.com/lukehoban/es6features#readme)
 * [Mozilla开发者官网](https://developer.mozilla.org/zh-CN/)
-* 阮一峰老师[es6入门](http://es6.ruanyifeng.com/ "es入门")
+* 阮一峰老师[ES6教程](http://es6.ruanyifeng.com/ "ES6")
