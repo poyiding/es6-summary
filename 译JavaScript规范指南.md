@@ -1,9 +1,9 @@
-## javascript编程指南
+## javaScript编程指南
 
-> 来[airbnb / javascript](https://github.com/airbnb/javascript),主要是ECMAScript6一些规范指导。
+> 来自[airbnb / javascript](https://github.com/airbnb/javascript),主要是ECMAScript6一些规范指导。
 
 #### type
-* 基本类型： string、boole、Number、null、undefind
+* 原始类型： string、boole、Number、null、undefind、symbol
 	* 直接存取基本类型值。
 * 复杂类型： Object、Array、funciton
 	* 通过引用的方式存取复杂类型值
@@ -163,7 +163,7 @@
 		import has from 'has';
 		// ...
 		console.log(has.call(object, key));
-* 通过Object.assign()来浅拷贝一个对象倾向于用rest操作符(...)。todo:不是很理解，MDN上面基本上是第二种。
+* 浅拷贝一个对象，相比Object.assign()宁可用rest操作符(...)。
 
 		// very bad
 		const original = { a: 1, b: 2 };
@@ -197,8 +197,7 @@
 		
 		// good
 		someStack.push('abracadabra');
-* 使用扩展运位符来复制数组，不要用循环方式，(有谁会这么干？直接赋值都行啊)
-
+* 使用扩展运位符来复制数组，不要用循环方式。
 		// bad
 		const len = items.length;
 		const itemsCopy = [];
@@ -215,9 +214,21 @@
 		举个栗子：
 		function toArray(){
 			return Array.prototype.slice.call(arguments) // es5
+			// good 
 			// Array.from(arguments) es6的方式
 		}
 		toArray('a','b','c') // ['a','b','c']
+		
+		// best
+		[...arguments]
+
+* 当map一个迭代数组使用Array.from替代...扩展操作符，因为它避免创建一个中间数组。
+
+	// bad 
+	const baz = [...foo].map(bar);
+
+	// good
+	const baz = Array.from(foo, bar);
 
 * 在数组的回调方法中使用return语句，如果在function里面是单个语句可以省略return。
 
@@ -264,6 +275,40 @@
 		
 		  return false;
 		});
+
+* 如果一个数组有多行，用换行展开。
+
+	// bad
+	const arr = [
+	  [0, 1], [2, 3], [4, 5],
+	];
+
+	const objectInArray = [{
+	  id: 1,
+	}, {
+	  id: 2,
+	}];
+
+	const numberInArray = [
+	  1, 2,
+	];
+
+	// good
+	const arr = [[0, 1], [2, 3], [4, 5]];
+
+	const objectInArray = [
+	  {
+	    id: 1,
+	  },
+	  {
+	    id: 2,
+	  },
+	];
+
+	const numberInArray = [
+	  1,
+	  2,
+	];
 
 #### Destructuring
 * 当访问和使用一个对象的多个属性时，使用对象的解构方法
@@ -378,7 +423,7 @@
 #### Functions 
 * 使用命名的函数表达式替代函数声明的方式
 
-	>why？函数声明会被提前，所以他们在调用栈中更容易被识别，而函数表达式只会把函数的引用变量名提升。....todo?
+	>why？函数声明会被提前，所以他们在调用栈中更容易被识别，而函数表达式只会把函数的引用变量名提升。ps: 个人认为还有一个好处是在递归中比较清晰明白含义。
 
 		// bad
 		function foo() {
@@ -397,7 +442,7 @@
 
 * 匿名函数自执行
 *  永远不要在一个（if、while、etc）非函数代码块中声明一个函数，应该把那个函数赋给一个变量。浏览器允许你这么做，但它们的解析表现不一致
-*  注意: ECMA-262 把 block 定义为一组声明。函数声明不是声明。(对上一点的解释)  // todo?
+*  注意: ECMA-262 把 block 定义为一组声明。函数声明不是声明。(对上一点的解释)
 
 		// bad
 		if (currentUser) {
